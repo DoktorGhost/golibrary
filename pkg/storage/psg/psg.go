@@ -3,11 +3,10 @@ package psg
 import (
 	"database/sql"
 	"fmt"
+	"github.com/DoktorGhost/golibrary/internal/config"
 	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-
-	"github.com/DoktorGhost/golibrary/config"
 )
 
 type PostgresStorage struct {
