@@ -7,27 +7,41 @@ import (
 )
 
 type BookService struct {
-	repo crud.Repository
+	repo crud.BookRepository
 }
 
-func (s *BookService) AddBook(book models.Book) (int, error) {
-	// Проверка существования автора
-	_, err := s.repo.GetAuthorByID(book.AuthorID)
-	if err != nil {
-		return 0, fmt.Errorf("автор с ID %d не найден: %v", book.AuthorID, err)
-	}
+func NewBookService(repo crud.BookRepository) *BookService {
+	return &BookService{repo: repo}
+}
 
-	// Создание книги
+func (s *BookService) AddBook(book models.BookTable) (int, error) {
 	bookID, err := s.repo.CreateBook(book)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка создания книги: %v", err)
 	}
-
 	return bookID, nil
-
 }
 
-func (s *BookService) UpdateBookDetails(book models.Book) error {
-	// бизнес-логика
-	return s.repo.UpdateBook(book)
+func (s *BookService) GetBook(id int) (models.BookTable, error) {
+	book, err := s.repo.GetBookByID(id)
+	if err != nil {
+		return models.BookTable{}, err
+	}
+	return book, nil
+}
+
+func (s *BookService) DeleteBook(id int) error {
+	err := s.repo.DeleteBook(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *BookService) UpdateBook(book models.BookTable) error {
+	err := s.repo.UpdateBook(book)
+	if err != nil {
+		return err
+	}
+	return nil
 }

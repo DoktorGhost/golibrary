@@ -11,36 +11,6 @@ type ZapLogger struct {
 	zap *zap.Logger
 }
 
-/*
-// NewZapLogger - функция для создания нового экземпляра Zap логгера
-func NewZapLogger() (*ZapLogger, error) {
-	zapLogger, err := zap.NewProduction()
-	if err != nil {
-		return nil, err
-	}
-	return &ZapLogger{zap: zapLogger}, nil
-}
-
-// Реализация методов интерфейса Logger
-
-func (l *ZapLogger) Info(msg string, fields ...interface{}) {
-	l.zap.Sugar().Infow(msg, fields...)
-}
-
-func (l *ZapLogger) Error(msg string, fields ...interface{}) {
-	l.zap.Sugar().Errorw(msg, fields...)
-}
-
-func (l *ZapLogger) Fatal(msg string, fields ...interface{}) {
-	l.zap.Sugar().Fatalw(msg, fields...)
-}
-
-// Форматирование времени
-func formatTime(t time.Time) string {
-	return t.Format("02/01/2006 15:04")
-}
-*/
-
 // Создание нового экземпляра логгера
 func NewZapLogger() (*ZapLogger, error) {
 	config := zap.NewProductionConfig() // Или zap.NewDevelopmentConfig()

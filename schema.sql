@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
                                      id SERIAL PRIMARY KEY,
                                      username VARCHAR(100) NOT NULL UNIQUE,
                                      password_hash VARCHAR(255) NOT NULL,
-                                     fio VARCHAR(200) NOT NULL
+                                     full_name VARCHAR(200) NOT NULL
 );
 
 -- Таблица для хранения информации об аренде книг
@@ -25,13 +25,11 @@ CREATE TABLE IF NOT EXISTS rentals_info (
                                        user_id INT REFERENCES users(id) ON DELETE CASCADE,
                                        book_id INT REFERENCES books(id) ON DELETE CASCADE,
                                        rental_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                       return_date TIMESTAMP,
-                                       UNIQUE (user_id, book_id, return_date) -- уникальность аренды одной книги одним пользователем
+                                       return_date TIMESTAMP
 );
 
 -- Таблица аренды книг
 CREATE TABLE IF NOT EXISTS rentals (
-                                            id SERIAL PRIMARY KEY,
-                                            book_id INT REFERENCES books(id) ON DELETE CASCADE,
-                                            rentals_id INT REFERENCES rentals_info(id) ON DELETE CASCADE
+                                            id INT PRIMARY KEY REFERENCES books(id) ON DELETE CASCADE,
+                                            rentals_id INT REFERENCES rentals_info(id)
 );

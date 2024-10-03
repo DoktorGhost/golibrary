@@ -5,7 +5,7 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/config"
 	"github.com/DoktorGhost/golibrary/internal/logger/zaplogger"
 	"github.com/DoktorGhost/golibrary/internal/repositories"
-	"github.com/DoktorGhost/golibrary/internal/services/crud"
+	"github.com/DoktorGhost/golibrary/internal/services"
 	"github.com/DoktorGhost/golibrary/pkg/storage/psg"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	logger.Info("соединение с БД установлено")
 
 	crudRepo := repositories.NewPostgresRepository(pgsqlConnector.DB)
-	crudService := crud.NewService(crudRepo)
-	fmt.Println(crudService)
+
+	_ = services.NewAuthorService(crudRepo)
 
 }

@@ -3,6 +3,7 @@ module github.com/DoktorGhost/golibrary
 go 1.22.2
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.28.0 // indirect
 	github.com/caarlos0/env/v6 v6.10.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect

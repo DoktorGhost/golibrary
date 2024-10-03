@@ -6,15 +6,11 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/models"
 )
 
-func (s *PostgresRepository) CreateBook(book models.Book) (int, error) {
+func (s *PostgresRepository) CreateBook(book models.BookTable) (int, error) {
 	var id int
-	_, err := s.GetAuthorByID(book.AuthorID)
-	if err != nil {
-		return 0, err
-	}
 
 	query := `INSERT INTO books (title, author_id) VALUES ($1, $2) RETURNING id`
-	err = s.db.QueryRow(query, book.Title, book.AuthorID).Scan(&id)
+	err := s.db.QueryRow(query, book.Title, book.AuthorID).Scan(&id)
 
 	if err != nil {
 		return 0, fmt.Errorf("ошибка добавления записи: %v", err)
@@ -23,22 +19,23 @@ func (s *PostgresRepository) CreateBook(book models.Book) (int, error) {
 	return id, nil
 }
 
-func (s *PostgresRepository) GetBookByID(id int) (models.Book, error) {
-	var result models.Book
+func (s *PostgresRepository) GetBookByID(id int) (models.BookTable, error) {
+	var result models.BookTable
 	query := `SELECT title, author_id FROM books WHERE id = $1`
 	err := s.db.QueryRow(query, id).Scan(&result.Title, &result.AuthorID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.Book{}, fmt.Errorf("книга с ID %d не найдена", id)
+			return models.BookTable{}, fmt.Errorf("книга с ID %d не найдена", id)
 		}
-		return models.Book{}, fmt.Errorf("ошибка получения книги: %v", err)
+		return models.BookTable{}, fmt.Errorf("ошибка получения книги: %v", err)
 	}
 	result.ID = id
+
 	return result, nil
 }
 
-func (s *PostgresRepository) UpdateBook(book models.Book) error {
+func (s *PostgresRepository) UpdateBook(book models.BookTable) error {
 	query := `UPDATE books SET title = $1, author_id = $2 WHERE id = $3`
 	result, err := s.db.Exec(query, book.Title, book.AuthorID, book.ID)
 
@@ -77,4 +74,32 @@ func (s *PostgresRepository) DeleteBook(id int) error {
 	}
 
 	return nil
+}
+
+func (s *PostgresRepository) GetAllBooks() ([]models.BookTable, error) {
+	query := `SELECT id, title, author_id FROM books;`
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %v", err)
+	}
+	defer rows.Close()
+
+	var books []models.BookTable
+
+	for rows.Next() {
+		var book models.BookTable
+
+		err := rows.Scan(&book.ID, &book.Title, &book.AuthorID)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка сканирования строки: %v", err)
+		}
+
+		books = append(books, book)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ошибка при чтении строк: %v", err)
+	}
+
+	return books, nil
 }

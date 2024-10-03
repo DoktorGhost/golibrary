@@ -7,10 +7,10 @@ import (
 	"github.com/lib/pq"
 )
 
-func (s *PostgresRepository) CreateUser(user models.User) (int, error) {
+func (s *PostgresRepository) CreateUser(user models.UserTable) (int, error) {
 	var id int
-	query := `INSERT INTO users (username, password_hash, fio) VALUES ($1, $2, $3) RETURNING id`
-	err := s.db.QueryRow(query, user.Username, user.Password, user.FIO).Scan(&id)
+	query := `INSERT INTO users (username, password_hash, full_name) VALUES ($1, $2, $3) RETURNING id`
+	err := s.db.QueryRow(query, user.Username, user.PasswordHash, user.FullName).Scan(&id)
 
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
@@ -22,24 +22,24 @@ func (s *PostgresRepository) CreateUser(user models.User) (int, error) {
 	return id, nil
 }
 
-func (s *PostgresRepository) GetUserByID(id int) (models.User, error) {
-	var result models.User
-	query := `SELECT username, password_hash, fio FROM users WHERE id = $1`
-	err := s.db.QueryRow(query, id).Scan(&result.Username, &result.Password, &result.FIO)
+func (s *PostgresRepository) GetUserByID(id int) (models.UserTable, error) {
+	var result models.UserTable
+	query := `SELECT username, password_hash, full_name FROM users WHERE id = $1`
+	err := s.db.QueryRow(query, id).Scan(&result.Username, &result.PasswordHash, &result.FullName)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.User{}, fmt.Errorf("пользователь с ID %d не найден", id)
+			return models.UserTable{}, fmt.Errorf("пользователь с ID %d не найден", id)
 		}
-		return models.User{}, fmt.Errorf("ошибка получения пользователя: %v", err)
+		return models.UserTable{}, fmt.Errorf("ошибка получения пользователя: %v", err)
 	}
 	result.ID = id
 	return result, nil
 }
 
-func (s *PostgresRepository) UpdateUser(user models.User) error {
-	query := `UPDATE users SET username = $1, password_hash = $2, fio = $3 WHERE id = $4`
-	result, err := s.db.Exec(query, user.Username, user.Password, user.FIO, user.ID)
+func (s *PostgresRepository) UpdateUser(user models.UserTable) error {
+	query := `UPDATE users SET username = $1, password_hash = $2, full_name = $3 WHERE id = $4`
+	result, err := s.db.Exec(query, user.Username, user.PasswordHash, user.FullName, user.ID)
 
 	if err != nil {
 		return fmt.Errorf("ошибка обновления пользователя: %v", err)
@@ -76,4 +76,18 @@ func (s *PostgresRepository) DeleteUser(id int) error {
 	}
 
 	return nil
+}
+
+func (s *PostgresRepository) GetUserByUsername(username string) (models.UserTable, error) {
+	var result models.UserTable
+	query := `SELECT id, username, password_hash, full_name FROM users WHERE username = $1`
+	err := s.db.QueryRow(query, username).Scan(&result.ID, &result.Username, &result.PasswordHash, &result.FullName)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.UserTable{}, fmt.Errorf("пользователь с username %s не найден", username)
+		}
+		return models.UserTable{}, fmt.Errorf("ошибка получения пользователя: %v", err)
+	}
+	return result, nil
 }
