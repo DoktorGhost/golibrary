@@ -7,9 +7,9 @@ import (
 
 func GenerateName() (string, string, string) {
 	name := gofakeit.LastName()
-	lastName := gofakeit.LastName()
+	surname := gofakeit.LastName()
 	patronymic := gofakeit.LastName()
-	return name, lastName, patronymic
+	return name, surname, patronymic
 }
 
 func GenerateTitleBook() string {

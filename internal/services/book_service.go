@@ -45,3 +45,20 @@ func (s *BookService) UpdateBook(book models.BookTable) error {
 	}
 	return nil
 }
+
+func (s *BookService) GetAllBook() ([]models.BookTable, error) {
+	books, err := s.repo.GetAllBooks()
+	if err != nil {
+		return nil, err
+	}
+	var result []models.BookTable
+
+	for _, bookTable := range books {
+		var book models.BookTable
+		book.Title = bookTable.Title
+		book.AuthorID = bookTable.AuthorID
+		result = append(result, book)
+	}
+
+	return result, nil
+}

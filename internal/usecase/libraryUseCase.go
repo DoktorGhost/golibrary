@@ -35,7 +35,7 @@ func (uc *LibraryUseCase) GiveBook(bookID, userID int) (int, error) {
 		return -4, err
 	}
 
-	err = uc.rentalService.CreateRentals(bookID, rentalID)
+	err = uc.rentalService.CreateRentals(bookID)
 	if err != nil {
 		return -5, err
 	}

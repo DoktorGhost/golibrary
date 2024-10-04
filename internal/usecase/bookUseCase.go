@@ -28,7 +28,7 @@ func (uc *BookUseCase) AddBook(book models.BookTable) (int, error) {
 		return -2, err
 	}
 	//добавляем запись в таблицу Rentals, указываем 0, так как книга свободна
-	err = uc.rentalService.CreateRentals(id, 0)
+	err = uc.rentalService.CreateRentals(id)
 	if err != nil {
 		return -3, err
 	}

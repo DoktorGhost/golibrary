@@ -8,12 +8,11 @@ import (
 
 func (s *PostgresRepository) CreateBook(book models.BookTable) (int, error) {
 	var id int
-
 	query := `INSERT INTO books (title, author_id) VALUES ($1, $2) RETURNING id`
 	err := s.db.QueryRow(query, book.Title, book.AuthorID).Scan(&id)
 
 	if err != nil {
-		return 0, fmt.Errorf("ошибка добавления записи: %v", err)
+		return 0, fmt.Errorf("ошибка добавления книги с названием '%s' и автором ID %d: %v", book.Title, book.AuthorID, err)
 	}
 
 	return id, nil

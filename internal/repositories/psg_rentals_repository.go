@@ -5,14 +5,12 @@ import (
 	"fmt"
 )
 
-func (s *PostgresRepository) CreateRentals(bookID, rentalID int) error {
-	query := `INSERT INTO rentals (id, rentals_id) VALUES ($1, $2)`
-	err := s.db.QueryRow(query, bookID, rentalID)
-
+func (s *PostgresRepository) CreateRentals(bookID int) error {
+	query := `INSERT INTO rentals (id) VALUES ($1)`
+	_, err := s.db.Exec(query, bookID)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления записи: %v", err)
 	}
-
 	return nil
 }
 
@@ -32,8 +30,18 @@ func (s *PostgresRepository) GetRentalsByID(id int) (int, error) {
 }
 
 func (s *PostgresRepository) UpdateRentals(id, rentals_id int) error {
-	query := `UPDATE rentals SET rentals_id=$1 WHERE id = $2`
-	result, err := s.db.Exec(query, rentals_id, id)
+	var query string
+	var result sql.Result
+	var err error
+
+	// Если rentals_id равен 0, используем NULL в запросе
+	if rentals_id == 0 {
+		query = `UPDATE rentals SET rentals_id = NULL WHERE id = $1`
+		result, err = s.db.Exec(query, id)
+	} else {
+		query = `UPDATE rentals SET rentals_id = $1 WHERE id = $2`
+		result, err = s.db.Exec(query, rentals_id, id)
+	}
 
 	if err != nil {
 		return fmt.Errorf("ошибка обновления записи аренды: %v", err)

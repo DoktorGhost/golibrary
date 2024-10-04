@@ -46,8 +46,8 @@ func (s *RentalService) DeleteRentalsInfo(id int) error {
 	return nil
 }
 
-func (s *RentalService) CreateRentals(bookID, rentalID int) error {
-	err := s.repo.CreateRentals(bookID, rentalID)
+func (s *RentalService) CreateRentals(bookID int) error {
+	err := s.repo.CreateRentals(bookID)
 	if err != nil {
 		return fmt.Errorf("ошибка создания записи: %v", err)
 	}

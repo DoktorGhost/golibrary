@@ -31,5 +31,5 @@ CREATE TABLE IF NOT EXISTS rentals_info (
 -- Таблица аренды книг
 CREATE TABLE IF NOT EXISTS rentals (
                                             id INT PRIMARY KEY REFERENCES books(id) ON DELETE CASCADE,
-                                            rentals_id INT REFERENCES rentals_info(id)
+                                            rentals_id INT REFERENCES rentals_info(id) DEFAULT NULL
 );

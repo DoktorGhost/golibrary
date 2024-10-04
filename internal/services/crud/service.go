@@ -41,7 +41,7 @@ type RentalsRepository interface {
 	GetRentalsInfoByID(id int) (models.RentalsTable, error)
 	UpdateRentalsInfo(rentals models.RentalsTable) error
 	DeleteRentalsInfo(id int) error
-	CreateRentals(bookID, rentalID int) error
+	CreateRentals(bookID int) error
 	GetRentalsByID(id int) (int, error)
 	UpdateRentals(id, rentals_id int) error
 	DeleteRentals(id int) error

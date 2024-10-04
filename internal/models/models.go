@@ -11,7 +11,6 @@ type UserTable struct {
 
 type User struct {
 	ID          int    `json:"id"`
-	Username    string `json:"username"`
 	FullName    string `json:"full_name"`
 	RentedBooks Book   `json:"rented_books"`
 }
