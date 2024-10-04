@@ -68,3 +68,8 @@ func (uc *LibraryUseCase) BackBook(bookID int) error {
 	}
 	return nil
 }
+
+// получить список пользователей с активной арендой
+func (uc *LibraryUseCase) GetUserRentals() {
+
+}

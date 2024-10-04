@@ -49,20 +49,17 @@ func (s *AuthorService) GetAuthorById(id int) (models.AuthorTable, error) {
 	return author, nil
 }
 
-func (s *AuthorService) GetAllAuthors() ([]models.Author, error) {
+func (s *AuthorService) GetAllAuthors() (map[int]models.AuthorTable, error) {
 
 	authors, err := s.repo.GetAllAuthors()
 	if err != nil {
 		return nil, err
 	}
 
-	var result []models.Author
+	result := make(map[int]models.AuthorTable)
 
-	for _, authorTable := range authors {
-		var author models.Author
-		author.Name = authorTable.Name
-		author.ID = authorTable.ID
-		result = append(result, author)
+	for _, author := range authors {
+		result[author.ID] = author
 	}
 
 	return result, nil

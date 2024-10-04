@@ -51,14 +51,5 @@ func (s *BookService) GetAllBook() ([]models.BookTable, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result []models.BookTable
-
-	for _, bookTable := range books {
-		var book models.BookTable
-		book.Title = bookTable.Title
-		book.AuthorID = bookTable.AuthorID
-		result = append(result, book)
-	}
-
-	return result, nil
+	return books, nil
 }

@@ -47,7 +47,5 @@ func (uc *UsersUseCase) AddUser(userData models.RegisterData) (int, error) {
 		return -4, fmt.Errorf("ошибка при создании пользователя: %v", err)
 	}
 
-	// Логгирование успешного создания пользователя
-
 	return id, nil
 }

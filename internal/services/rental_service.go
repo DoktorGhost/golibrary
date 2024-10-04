@@ -77,3 +77,11 @@ func (s *RentalService) DeleteRentals(id int) error {
 	}
 	return nil
 }
+
+func (s *RentalService) GetActiveRentals() ([]models.RentalsTable, error) {
+	rentalID, err := s.repo.GetActiveRentals()
+	if err != nil {
+		return nil, err
+	}
+	return rentalID, nil
+}

@@ -46,3 +46,43 @@ func (uc *BookUseCase) AddAuthor(name, surname, patronymic string) (int, error) 
 	}
 	return id, nil
 }
+
+func (uc *BookUseCase) GetAllBookWithAuthor() ([]models.Book, error) {
+	authors, err := uc.authorService.GetAllAuthors()
+	if err != nil {
+		return nil, err
+	}
+	books, err := uc.bookService.GetAllBook()
+
+	var bookList []models.Book
+
+	for _, bookTable := range books {
+		var book models.Book
+		book.ID = bookTable.ID
+		book.Title = bookTable.Title
+		book.Author = authors[bookTable.AuthorID]
+		bookList = append(bookList, book)
+	}
+	return bookList, nil
+}
+
+func (uc *BookUseCase) GetBookWithAuthor(id int) (models.Book, error) {
+	bookTable, err := uc.bookService.GetBook(id)
+	if err != nil {
+		return models.Book{}, err
+	}
+
+	author, err := uc.authorService.GetAuthorById(bookTable.AuthorID)
+	if err != nil {
+		return models.Book{}, err
+	}
+
+	book := models.Book{
+		ID:     bookTable.ID,
+		Title:  bookTable.Title,
+		Author: author,
+	}
+
+	return book, nil
+
+}

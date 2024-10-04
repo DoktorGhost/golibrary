@@ -69,4 +69,14 @@ func (uc *DataUseCase) AddLibrary() {
 		}
 
 	}
+
+	//вывести все книги с авторами
+	booksWithAuthor, err := uc.GetAllBookWithAuthor()
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, book := range booksWithAuthor {
+		fmt.Println(book)
+	}
+
 }

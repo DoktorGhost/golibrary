@@ -81,3 +81,38 @@ func (s *PostgresRepository) DeleteRentalsInfo(id int) error {
 
 	return nil
 }
+
+func (s *PostgresRepository) GetActiveRentals() ([]models.RentalsTable, error) {
+	query := `SELECT id, user_id, book_id, rental_date, return_date FROM rentals_info WHERE return_date IS NULL;`
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %v", err)
+	}
+	defer rows.Close()
+
+	var rentals []models.RentalsTable
+
+	for rows.Next() {
+		var rental models.RentalsTable
+		var returnDate sql.NullTime
+
+		err := rows.Scan(&rental.ID, &rental.UserID, &rental.BookID, &rental.RentalDate, &returnDate)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка сканирования строки: %v", err)
+		}
+
+		if returnDate.Valid {
+			rental.ReturnDate = returnDate.Time
+		} else {
+			rental.ReturnDate = time.Time{} // Используем нулевое значение времени
+		}
+
+		rentals = append(rentals, rental)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("ошибка при чтении строк: %v", err)
+	}
+
+	return rentals, nil
+}
