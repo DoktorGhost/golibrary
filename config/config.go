@@ -9,11 +9,12 @@ import (
 )
 
 type Config struct {
-	DbHost  string `env:"DB_HOST"`
-	DbPort  string `env:"DB_PORT"`
-	DbName  string `env:"DB_NAME"`
-	DbLogin string `env:"DB_LOGIN"`
-	DbPass  string `env:"DB_PASS"`
+	DbHost    string `env:"DB_HOST"`
+	DbPort    string `env:"DB_PORT"`
+	DbName    string `env:"DB_NAME"`
+	DbLogin   string `env:"DB_LOGIN"`
+	DbPass    string `env:"DB_PASS"`
+	JWTSecret string `env:"SECRET_KEY_JWT"`
 }
 
 func LoadConfig(path string, logger logger.Logger) (*Config, error) {

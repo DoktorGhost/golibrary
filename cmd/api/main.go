@@ -15,7 +15,16 @@ import (
 	"github.com/DoktorGhost/golibrary/pkg/storage/psg"
 )
 
+// @title Library
+// @version 0.1.0
+// @description Библиотека
+
+// @securityDefinitions.apikey BearerAuth
+// @type apiKey
+// @name Authorization
+// @in header
 func main() {
+
 	go func() {
 		log.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
@@ -29,6 +38,7 @@ func main() {
 	defer logger.Sync()
 
 	conf, err := config.LoadConfig("../../.env", logger)
+	//conf, err := config.LoadConfig(".env", logger)
 	if err != nil {
 		logger.Error(err.Error())
 		return
@@ -41,18 +51,7 @@ func main() {
 	}
 	logger.Info("соединение с БД установлено")
 
-	cont := app.Init(pgsqlConnector)
-
-	/*
-		repositoryProvider := providers.NewRepositoryProvider(pgsqlConnector)
-		repositoryProvider.RegisterDependencies()
-
-		serviceProvider := providers.NewServiceProvider()
-		serviceProvider.RegisterDependencies(repositoryProvider)
-
-		useCaseProvider := providers.NewUseCaseProvider()
-		useCaseProvider.RegisterDependencies(serviceProvider)
-	*/
+	cont := app.Init(pgsqlConnector, conf)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

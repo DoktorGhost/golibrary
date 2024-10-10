@@ -9,6 +9,15 @@ import (
 	"strconv"
 )
 
+// @Summary Получить все аренды
+// @Description Возвращает список всех записей аренды для пользователя.
+// @Tags Rentals
+// @Accept json
+// @Produce json
+// @Success 200 {array} entities.UserWithRentedBooks "Список записей аренды"
+// @Failure 500 {string} string "Ошибка чтения аренды"
+// @Router /rentals [get]
+// @Security BearerAuth
 func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -36,6 +45,18 @@ func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider, logger log
 	}
 }
 
+// @Summary Выдать книгу пользователю
+// @Description Позволяет выдать книгу пользователю по его идентификатору и идентификатору книги.
+// @Tags Rentals
+// @Accept json
+// @Produce json
+// @Param user_id path int true "Идентификатор пользователя"
+// @Param book_id path int true "Идентификатор книги"
+// @Success 200 {string} string "Книга успешно выдана, RentalID: {rentalID}"
+// @Failure 400 {string} string "Неправильный UserID или BookID"
+// @Failure 500 {string} string "Ошибка при выдаче книги"
+// @Router /rental/add/{user_id}/{book_id} [post]
+// @Security BearerAuth
 func handlerGiveBook(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -76,6 +97,17 @@ func handlerGiveBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 	}
 }
 
+// @Summary Вернуть книгу
+// @Description Позволяет вернуть книгу по её идентификатору.
+// @Tags Rentals
+// @Accept json
+// @Produce json
+// @Param book_id path int true "Идентификатор книги"
+// @Success 200 {string} string "Книга успешно возвращена"
+// @Failure 400 {string} string "Неправильный BookID"
+// @Failure 500 {string} string "Ошибка при возврате книги"
+// @Router /rental/back/{book_id} [post]
+// @Security BearerAuth
 func handlerBackBook(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -108,6 +140,18 @@ func handlerBackBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 	}
 }
 
+// @Summary Получить топ авторов
+// @Description Возвращает список топовых авторов за указанный период с заданным лимитом.
+// @Tags Library
+// @Accept json
+// @Produce json
+// @Param period path int true "Период (количество дней)"
+// @Param limit path int true "Максимальное количество авторов для возврата"
+// @Success 200 {array} entities.Author "Список топовых авторов"
+// @Failure 400 {string} string "Неправильный период или лимит"
+// @Failure 500 {string} string "Ошибка получения топа авторов"
+// @Router /top/{period}/{limit} [get]
+// @Security BearerAuth
 func handlerGetTop(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {

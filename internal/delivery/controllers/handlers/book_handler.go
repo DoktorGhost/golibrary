@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	_ "github.com/DoktorGhost/golibrary/docs"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 	"github.com/DoktorGhost/golibrary/internal/providers"
@@ -11,6 +12,17 @@ import (
 	"strconv"
 )
 
+// @Summary Добавить автора
+// @Description Добавляет нового автора в систему.
+// @Tags Library
+// @Accept json
+// @Produce json
+// @Param author body entities.AuthorRequest true "ФИО Автора"
+// @Success 201 {string} string "Автор успешно добавлен, ID: {id}"
+// @Failure 400 {string} string "Ошибка декодирования JSON или чтения тела запроса"
+// @Failure 500 {string} string "Ошибка при добавлении автора"
+// @Router /author/add [post]
+// @Security BearerAuth
 func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -52,6 +64,17 @@ func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.
 	}
 }
 
+// @Summary Добавить книгу
+// @Description Добавляет новую книгу в систему.
+// @Tags Library
+// @Accept json
+// @Produce json
+// @Param book body entities.BookRequest true "Информация о книге: название и ID автора"
+// @Success 201 {string} string "Книга успешно добавлена, ID: {id}"
+// @Failure 400 {string} string "Ошибка декодирования JSON или чтения тела запроса"
+// @Failure 500 {string} string "Ошибка при добавлении книги"
+// @Router /books/add [post]
+// @Security BearerAuth
 func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -93,6 +116,15 @@ func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 	}
 }
 
+// @Summary Получить все книги
+// @Description Возвращает список всех книг с информацией об авторах.
+// @Tags Library
+// @Accept json
+// @Produce json
+// @Success 200 {array} entities.Book "Список книг"
+// @Failure 500 {string} string "Ошибка получения книг"
+// @Router /books [get]
+// @Security BearerAuth
 func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -123,6 +155,15 @@ func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider, logger logge
 	}
 }
 
+// @Summary Получить всех авторов
+// @Description Возвращает список всех авторов с информацией о их книгах.
+// @Tags Library
+// @Accept json
+// @Produce json
+// @Success 200 {array} entities.Author "Список авторов"
+// @Failure 500 {string} string "Ошибка получения авторов"
+// @Router /authors [get]
+// @Security BearerAuth
 func handlerGetAllAuthors(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {

@@ -1,0 +1,398 @@
+definitions:
+  dao.AuthorTable:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dao.BookTable:
+    properties:
+      authorID:
+        type: integer
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  dao.UserTable:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  entities.Author:
+    properties:
+      books:
+        items:
+          $ref: '#/definitions/dao.BookTable'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  entities.AuthorRequest:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  entities.Book:
+    properties:
+      author:
+        $ref: '#/definitions/dao.AuthorTable'
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  entities.BookRequest:
+    properties:
+      author_id:
+        type: integer
+      title:
+        type: string
+    type: object
+  entities.Login:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  entities.UserWithRentedBooks:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: integer
+      rented_books:
+        items:
+          $ref: '#/definitions/entities.Book'
+        type: array
+    type: object
+info:
+  contact: {}
+  description: Библиотека
+  title: Library
+  version: 0.1.0
+paths:
+  /author/add:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет нового автора в систему.
+      parameters:
+      - description: ФИО Автора
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AuthorRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Автор успешно добавлен, ID: {id}'
+          schema:
+            type: string
+        "400":
+          description: Ошибка декодирования JSON или чтения тела запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка при добавлении автора
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Добавить автора
+      tags:
+      - Library
+  /authors:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех авторов с информацией о их книгах.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список авторов
+          schema:
+            items:
+              $ref: '#/definitions/entities.Author'
+            type: array
+        "500":
+          description: Ошибка получения авторов
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить всех авторов
+      tags:
+      - Library
+  /books:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех книг с информацией об авторах.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список книг
+          schema:
+            items:
+              $ref: '#/definitions/entities.Book'
+            type: array
+        "500":
+          description: Ошибка получения книг
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить все книги
+      tags:
+      - Library
+  /books/add:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новую книгу в систему.
+      parameters:
+      - description: 'Информация о книге: название и ID автора'
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/entities.BookRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Книга успешно добавлена, ID: {id}'
+          schema:
+            type: string
+        "400":
+          description: Ошибка декодирования JSON или чтения тела запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка при добавлении книги
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Добавить книгу
+      tags:
+      - Library
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя по имени пользователя и паролю, возвращает
+        JWT-токен.
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT-токен
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Ошибка декодирования данных или ошибка аутентификации
+          schema:
+            type: string
+        "405":
+          description: Неправильный метод
+          schema:
+            type: string
+      summary: Логин пользователя
+      tags:
+      - Auth
+  /rental/add/{user_id}/{book_id}:
+    post:
+      consumes:
+      - application/json
+      description: Позволяет выдать книгу пользователю по его идентификатору и идентификатору
+        книги.
+      parameters:
+      - description: Идентификатор пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Идентификатор книги
+        in: path
+        name: book_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Книга успешно выдана, RentalID: {rentalID}'
+          schema:
+            type: string
+        "400":
+          description: Неправильный UserID или BookID
+          schema:
+            type: string
+        "500":
+          description: Ошибка при выдаче книги
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Выдать книгу пользователю
+      tags:
+      - Rentals
+  /rental/back/{book_id}:
+    post:
+      consumes:
+      - application/json
+      description: Позволяет вернуть книгу по её идентификатору.
+      parameters:
+      - description: Идентификатор книги
+        in: path
+        name: book_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Книга успешно возвращена
+          schema:
+            type: string
+        "400":
+          description: Неправильный BookID
+          schema:
+            type: string
+        "500":
+          description: Ошибка при возврате книги
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Вернуть книгу
+      tags:
+      - Rentals
+  /rentals:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех записей аренды для пользователя.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список записей аренды
+          schema:
+            items:
+              $ref: '#/definitions/entities.UserWithRentedBooks'
+            type: array
+        "500":
+          description: Ошибка чтения аренды
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить все аренды
+      tags:
+      - Rentals
+  /top/{period}/{limit}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список топовых авторов за указанный период с заданным
+        лимитом.
+      parameters:
+      - description: Период (количество дней)
+        in: path
+        name: period
+        required: true
+        type: integer
+      - description: Максимальное количество авторов для возврата
+        in: path
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список топовых авторов
+          schema:
+            items:
+              $ref: '#/definitions/entities.Author'
+            type: array
+        "400":
+          description: Неправильный период или лимит
+          schema:
+            type: string
+        "500":
+          description: Ошибка получения топа авторов
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить топ авторов
+      tags:
+      - Library
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о пользователе по его ID.
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о пользователе
+          schema:
+            $ref: '#/definitions/dao.UserTable'
+        "400":
+          description: Неверный ID
+          schema:
+            type: string
+        "500":
+          description: Ошибка при получении пользователя
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получить пользователя
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

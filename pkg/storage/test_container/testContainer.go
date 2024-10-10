@@ -54,46 +54,25 @@ func SetupPostgresContainer(t *testing.T) (*sql.DB, func()) {
 		t.Fatal(err)
 	}
 
+	//migrationsDir, err := filepath.Abs("../../migrations")
+	migrationsDir, err := filepath.Abs("../../../../migrations")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Проверка существования директории
+	if _, err := os.Stat(migrationsDir); os.IsNotExist(err) {
+		t.Fatal(err)
+	}
+
+	// Применение миграций
+	if err := goose.Up(db, migrationsDir); err != nil {
+		t.Fatal(err)
+	}
+
 	// Возвращаем базу данных и функцию очистки ресурсов
 	return db, func() {
 		db.Close()
 		postgresContainer.Terminate(ctx)
 	}
-}
-
-// Метод для применения миграций
-func ApplyMigrations(db *sql.DB) error {
-	// Путь к папке с миграциями
-	migrationsDir, err := filepath.Abs("../../migrations")
-	if err != nil {
-		return err
-	}
-
-	// Проверка существования директории
-	if _, err := os.Stat(migrationsDir); os.IsNotExist(err) {
-		return fmt.Errorf("директория с миграциями не найдена: %v", migrationsDir)
-	}
-
-	// Применение миграций
-	if err := goose.Up(db, migrationsDir); err != nil {
-		return fmt.Errorf("ошибка применения миграций: %v", err)
-	}
-
-	return nil
-}
-
-// Метод для отката миграций
-func RollbackMigrations(db *sql.DB) error {
-	// Путь к папке с миграциями
-	migrationsDir, err := filepath.Abs("../../migrations")
-	if err != nil {
-		return err
-	}
-
-	// Откат миграций
-	if err := goose.Down(db, migrationsDir); err != nil {
-		return fmt.Errorf("ошибка отката миграций: %v", err)
-	}
-
-	return nil
 }

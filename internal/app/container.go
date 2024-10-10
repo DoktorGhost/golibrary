@@ -2,6 +2,7 @@ package app
 
 import (
 	"database/sql"
+	"github.com/DoktorGhost/golibrary/config"
 	"sync"
 
 	"github.com/DoktorGhost/golibrary/internal/providers"
@@ -16,7 +17,7 @@ type container struct {
 	UseCaseProvider *providers.UseCaseProvider
 }
 
-func Init(db *sql.DB) container {
+func Init(db *sql.DB, conf *config.Config) container {
 	once.Do(func() {
 		repositoryProvider := providers.NewRepositoryProvider(db)
 		repositoryProvider.RegisterDependencies()
@@ -25,7 +26,7 @@ func Init(db *sql.DB) container {
 		serviceProvider.RegisterDependencies(repositoryProvider)
 
 		useCaseProvider := providers.NewUseCaseProvider()
-		useCaseProvider.RegisterDependencies(serviceProvider)
+		useCaseProvider.RegisterDependencies(serviceProvider, conf.JWTSecret)
 
 		Container = container{
 			UseCaseProvider: useCaseProvider,

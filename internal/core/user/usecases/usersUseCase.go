@@ -2,12 +2,12 @@ package usecases
 
 import (
 	"fmt"
+	"github.com/DoktorGhost/golibrary/internal/auth"
 
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	"github.com/DoktorGhost/golibrary/internal/core/user/repositories/postgres/dao"
 	"github.com/DoktorGhost/golibrary/internal/core/user/services"
 	"github.com/DoktorGhost/golibrary/pkg/validator"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UsersUseCase struct {
@@ -32,7 +32,7 @@ func (uc *UsersUseCase) AddUser(userData entities.RegisterData) (int, error) {
 	}
 
 	// Хеширование пароля
-	hash, err := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.MinCost)
+	hash, err := auth.HashPassword(userData.Password)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка хеширования пароля: %v", err)
 	}
