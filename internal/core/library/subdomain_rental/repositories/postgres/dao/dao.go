@@ -9,3 +9,8 @@ type RentalsTable struct {
 	RentalDate time.Time `json:"rental_date"`
 	ReturnDate time.Time `json:"return_date"`
 }
+
+type TopAuthor struct {
+	Name      string `json:"name"`
+	CountRent int    `json:"count_rent"`
+}

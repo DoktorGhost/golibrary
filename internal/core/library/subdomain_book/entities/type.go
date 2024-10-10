@@ -23,3 +23,14 @@ type Author struct {
 	Name  string          `json:"name"`
 	Books []dao.BookTable `json:"books"`
 }
+
+type AuthorRequest struct {
+	Name       string `json:"name"`
+	Surname    string `json:"surname"`
+	Patronymic string `json:"patronymic"`
+}
+
+type BookRequest struct {
+	Title    string `json:"title"`
+	AuthorID int    `json:"author_id"`
+}

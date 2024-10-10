@@ -25,9 +25,9 @@ func NewBookUseCase(
 
 func (uc *BookUseCase) AddBook(book dao.BookTable) (int, error) {
 	//Проверяем наличие автора в таблице
-	authorID, err := uc.authorService.GetAuthorById(book.AuthorID)
+	_, err := uc.authorService.GetAuthorById(book.AuthorID)
 	if err != nil {
-		return 0, fmt.Errorf("данного автора id=%d нет в таблице: %v", authorID, err)
+		return 0, fmt.Errorf("данного автора id=%d нет в таблице: %v", book.AuthorID, err)
 	}
 
 	//Добавляем книгу
@@ -35,11 +35,13 @@ func (uc *BookUseCase) AddBook(book dao.BookTable) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("ошибка добавления книги: %v", err)
 	}
+
 	//Добавляем запись в таблицу Rentals (по дефотлту она будет свободна)
 	err = uc.rentalService.CreateRentals(bookID)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка добавления записи в Rentals: %v", err)
 	}
+
 	return bookID, nil
 }
 
@@ -95,4 +97,31 @@ func (uc *BookUseCase) GetBookWithAuthor(id int) (entities.Book, error) {
 	}
 
 	return book, nil
+}
+
+func (uc *BookUseCase) GetAllAuthorWithBooks() ([]entities.Author, error) {
+	authors, err := uc.authorService.GetAllAuthors()
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения всех авторов: %v", err)
+	}
+	books, err := uc.bookService.GetAllBook()
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения всех книг: %v", err)
+	}
+
+	var authorList []entities.Author
+	authorBooks := make(map[int][]dao.BookTable)
+
+	for _, bookTable := range books {
+		authorBooks[bookTable.AuthorID] = append(authorBooks[bookTable.AuthorID], bookTable)
+	}
+
+	for key, value := range authors {
+		var author entities.Author
+		author.ID = key
+		author.Name = value.Name
+		author.Books = authorBooks[key]
+		authorList = append(authorList, author)
+	}
+	return authorList, nil
 }

@@ -22,23 +22,24 @@ func (uc *UsersUseCase) AddUser(userData entities.RegisterData) (int, error) {
 	// Проверка, существует ли пользователь с таким именем
 	_, err := uc.userService.GetUserByUsername(userData.Username)
 	if err == nil {
-		return -1, fmt.Errorf("пользователь с таким Username уже существует")
+		return 0, fmt.Errorf("пользователь с таким Username уже существует")
 	}
 
 	// Валидация данных пользователя
 	fullName, err := validator.Valid(userData.Name, userData.Surname, userData.Patronymic)
 	if err != nil {
-		return -2, fmt.Errorf("ошибка валидации данных: %v", err)
+		return 0, fmt.Errorf("ошибка валидации данных: %v", err)
 	}
 
 	// Хеширование пароля
 	hash, err := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.MinCost)
 	if err != nil {
-		return -3, fmt.Errorf("ошибка хеширования пароля: %v", err)
+		return 0, fmt.Errorf("ошибка хеширования пароля: %v", err)
 	}
 
 	// Подготовка данных для создания пользователя
 	var data dao.UserTable
+
 	data.Username = userData.Username
 	data.PasswordHash = string(hash)
 	data.FullName = fullName
@@ -46,7 +47,7 @@ func (uc *UsersUseCase) AddUser(userData entities.RegisterData) (int, error) {
 	// Создание пользователя
 	id, err := uc.userService.CreateUser(data)
 	if err != nil {
-		return -4, fmt.Errorf("ошибка при создании пользователя: %v", err)
+		return 0, fmt.Errorf("ошибка при создании пользователя: %v", err)
 	}
 
 	return id, nil

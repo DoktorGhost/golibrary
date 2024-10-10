@@ -6,6 +6,7 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=./mock_author.go -package=${GOPACKAGE}
 type AuthorRepository interface {
 	CreateAuthor(name string) (int, error)
 	GetAuthorByID(id int) (dao.AuthorTable, error)

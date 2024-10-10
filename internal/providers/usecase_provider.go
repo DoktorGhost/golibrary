@@ -18,7 +18,7 @@ func NewUseCaseProvider() *UseCaseProvider {
 
 func (ucp *UseCaseProvider) RegisterDependencies(provider *ServiceProvider) {
 	ucp.BookUseCase = domainBook.NewBookUseCase(provider.bookService, provider.authorService, provider.rentalService)
-	ucp.LibraryUseCase = domainBook.NewLibraryUseCase(provider.rentalService, provider.usersService)
+	ucp.LibraryUseCase = domainBook.NewLibraryUseCase(provider.rentalService, provider.usersService, ucp.BookUseCase, provider.authorService)
 	ucp.UserUseCase = domainUser.NewUsersUseCase(provider.usersService)
-	ucp.DataUseCase = domainUser.NewDataUseCase(provider.bookService, provider.authorService, ucp.UserUseCase)
+	ucp.DataUseCase = domainUser.NewDataUseCase(provider.bookService, provider.rentalService, provider.authorService, ucp.UserUseCase)
 }

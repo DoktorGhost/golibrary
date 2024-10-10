@@ -110,3 +110,36 @@ func (s *RentalRepository) GetActiveRentals() (map[int][]int, error) {
 
 	return rentals, nil
 }
+
+func (s *RentalRepository) GetTopAuthors(days, limit int) ([]dao.TopAuthor, error) {
+	period := fmt.Sprintf("%d days", days)
+
+	// Формируем запрос
+	query := fmt.Sprintf(`
+			SELECT library.authors.name, COUNT(library.rentals_info.id) AS rental_count
+			FROM library.authors
+			JOIN library.books ON library.authors.id = library.books.author_id
+			JOIN library.rentals_info ON library.books.id = library.rentals_info.book_id
+			WHERE library.rentals_info.rental_date >= NOW() - INTERVAL '%s'
+			GROUP BY library.authors.id
+			ORDER BY rental_count DESC
+			LIMIT $1;`, period)
+
+	// Выполняем запрос, передавая только лимит
+	rows, err := s.db.Query(query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var authors []dao.TopAuthor
+	for rows.Next() {
+		var author dao.TopAuthor
+		if err := rows.Scan(&author.Name, &author.CountRent); err != nil {
+			return nil, err
+		}
+		authors = append(authors, author)
+	}
+
+	return authors, nil
+}

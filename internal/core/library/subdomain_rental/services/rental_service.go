@@ -2,10 +2,10 @@ package services
 
 import (
 	"fmt"
-
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres/dao"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=./mock_rental.go -package=${GOPACKAGE}
 type RentalsRepository interface {
 	CreateRentalsInfo(userID, bookID int) (int, error)
 	GetRentalsInfoByID(id int) (dao.RentalsTable, error)
@@ -16,6 +16,7 @@ type RentalsRepository interface {
 	UpdateRentals(id, rentals_id int) error
 	DeleteRentals(id int) error
 	GetActiveRentals() (map[int][]int, error)
+	GetTopAuthors(days, limit int) ([]dao.TopAuthor, error)
 }
 
 type RentalService struct {
@@ -96,4 +97,12 @@ func (s *RentalService) GetActiveRentals() (map[int][]int, error) {
 		return nil, fmt.Errorf("ошибка получения записей активной аренды: %v", err)
 	}
 	return rentalID, nil
+}
+
+func (s *RentalService) GetTopAuthorsByPeriod(period, limit int) ([]dao.TopAuthor, error) {
+	authors, err := s.repo.GetTopAuthors(period, limit)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения топ авторов за период %d: %v", period, err)
+	}
+	return authors, nil
 }

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"fmt"
+	domainRental "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
 	"math/rand"
 
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
@@ -18,25 +19,28 @@ type DataUseCase struct {
 
 	authorService *domainBook.AuthorService
 	bookService   *domainBook.BookService
+	rentalService *domainRental.RentalService
 }
 
 func NewDataUseCase(
 	bookService *domainBook.BookService,
+	rentalService *domainRental.RentalService,
 	authorService *domainBook.AuthorService,
 	usersUseCase *UsersUseCase,
 ) *DataUseCase {
 	return &DataUseCase{
-		BookUseCase:   *usecases.NewBookUseCase(bookService, authorService, nil),
+		BookUseCase:   *usecases.NewBookUseCase(bookService, authorService, rentalService),
 		usersUseCase:  usersUseCase,
 		authorService: authorService,
 		bookService:   bookService,
+		rentalService: rentalService,
 	}
 }
 
 func (uc *DataUseCase) AddLibrary() error {
 	authors, err := uc.authorService.GetAllAuthors()
 	if err != nil {
-		return nil
+		return err
 	}
 	//добавляем авторов
 	if len(authors) < 1 {
@@ -52,10 +56,10 @@ func (uc *DataUseCase) AddLibrary() error {
 
 	books, err := uc.bookService.GetAllBook()
 	if err != nil {
-		return nil
+		return err
 	}
 	//добавляем книги
-	if len(books) < 1 {
+	if len(books) < 100 {
 		for i := 0; i < 100; i++ {
 			var book dao.BookTable
 			book.AuthorID = rand.Intn(10) + 1
@@ -84,15 +88,6 @@ func (uc *DataUseCase) AddLibrary() error {
 			}
 		}
 
-	}
-
-	//вывести все книги с авторами
-	booksWithAuthor, err := uc.GetAllBookWithAuthor()
-	if err != nil {
-		fmt.Println(err)
-	}
-	for _, book := range booksWithAuthor {
-		fmt.Println(book)
 	}
 
 	return nil

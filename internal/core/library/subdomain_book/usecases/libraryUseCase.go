@@ -3,7 +3,9 @@ package usecases
 import (
 	"errors"
 	"fmt"
+	services3 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/entities"
+	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres/dao"
 	"time"
 
 	services2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
@@ -13,10 +15,16 @@ import (
 type LibraryUseCase struct {
 	rentalService *services2.RentalService
 	userService   *services.UserService
+	bookService   *BookUseCase
+	authorService *services3.AuthorService
 }
 
-func NewLibraryUseCase(rentalService *services2.RentalService, userService *services.UserService) *LibraryUseCase {
-	return &LibraryUseCase{rentalService, userService}
+func NewLibraryUseCase(
+	rentalService *services2.RentalService,
+	userService *services.UserService,
+	bookService *BookUseCase,
+	authorService *services3.AuthorService) *LibraryUseCase {
+	return &LibraryUseCase{rentalService, userService, bookService, authorService}
 }
 
 // GiveBook выдать книгу
@@ -75,14 +83,42 @@ func (uc *LibraryUseCase) BackBook(bookID int) error {
 
 // GetUserRentals получить список пользователей с активной арендой
 func (uc *LibraryUseCase) GetUserRentals() ([]entities.UserWithRentedBooks, error) {
-	rentalID, err := uc.rentalService.GetActiveRentals()
+	rentalsID, err := uc.rentalService.GetActiveRentals()
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения списка активной аренды: %v", err)
 	}
-	if len(rentalID) < 1 {
+	if len(rentalsID) < 1 {
 		return nil, fmt.Errorf("записи не найдены: %v", err)
 	}
 	var result []entities.UserWithRentedBooks
 
+	for userID, booksID := range rentalsID {
+		var rental entities.UserWithRentedBooks
+
+		user, err := uc.userService.GetUserById(userID)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка получения автора: %v", err)
+		}
+		rental.ID = userID
+		rental.FullName = user.FullName
+
+		for _, bookID := range booksID {
+			book, err := uc.bookService.GetBookWithAuthor(bookID)
+			if err != nil {
+				return nil, err
+			}
+			rental.RentedBooks = append(rental.RentedBooks, book)
+		}
+		result = append(result, rental)
+	}
+
 	return result, nil
+}
+
+func (uc *LibraryUseCase) GetTopAuthors(period, limit int) ([]dao.TopAuthor, error) {
+	authors, err := uc.rentalService.GetTopAuthorsByPeriod(period, limit)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения топ авторов за период %d: %v", period, err)
+	}
+	return authors, nil
 }

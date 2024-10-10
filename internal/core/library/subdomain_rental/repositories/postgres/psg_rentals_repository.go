@@ -15,7 +15,7 @@ func (s *RentalRepository) CreateRentals(bookID int) error {
 }
 
 func (s *RentalRepository) GetRentalsByID(id int) (int, error) {
-	var rentals_id int
+	var rentals_id *int
 	query := `SELECT rentals_id FROM library.rentals WHERE id = $1`
 	err := s.db.QueryRow(query, id).Scan(&rentals_id)
 
@@ -25,8 +25,11 @@ func (s *RentalRepository) GetRentalsByID(id int) (int, error) {
 		}
 		return 0, fmt.Errorf("ошибка получения записи аренды: %v", err)
 	}
+	if rentals_id == nil {
+		return 0, nil
+	}
 
-	return rentals_id, nil
+	return *rentals_id, nil
 }
 
 func (s *RentalRepository) UpdateRentals(id, rentals_id int) error {

@@ -16,7 +16,7 @@ type container struct {
 	UseCaseProvider *providers.UseCaseProvider
 }
 
-func Init(db *sql.DB) {
+func Init(db *sql.DB) container {
 	once.Do(func() {
 		repositoryProvider := providers.NewRepositoryProvider(db)
 		repositoryProvider.RegisterDependencies()
@@ -31,4 +31,5 @@ func Init(db *sql.DB) {
 			UseCaseProvider: useCaseProvider,
 		}
 	})
+	return Container
 }

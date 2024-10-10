@@ -7,6 +7,8 @@ import (
 )
 
 // UserRepository определяет методы для работы с пользователями
+//
+//go:generate mockgen -source=$GOFILE -destination=./mock_user.go -package=${GOPACKAGE}
 type UserRepository interface {
 	CreateUser(user dao.UserTable) (int, error)
 	GetUserByID(id int) (dao.UserTable, error)
@@ -47,7 +49,7 @@ func (s *UserService) GetUserByUsername(username string) (dao.UserTable, error) 
 	return user, nil
 }
 
-func (s *UserService) DeleteBook(id int) error {
+func (s *UserService) DeleteUser(id int) error {
 	err := s.repo.DeleteUser(id)
 	if err != nil {
 		return err
@@ -55,7 +57,7 @@ func (s *UserService) DeleteBook(id int) error {
 	return nil
 }
 
-func (s *UserService) UpdateBook(user dao.UserTable) error {
+func (s *UserService) UpdateUser(user dao.UserTable) error {
 	err := s.repo.UpdateUser(user)
 	if err != nil {
 		return err

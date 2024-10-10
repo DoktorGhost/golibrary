@@ -30,7 +30,7 @@ func InitStorage(conf *config.Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("ошибка запроса к бд: %v", err)
 	}
 
-	// Получаем абсолютный путь к папке с миграциями
+	// Получаем путь к папке с миграциями
 	migrationsDir, err := filepath.Abs("../../migrations")
 	if err != nil {
 		return nil, fmt.Errorf("ошибка определения пути к миграциям: %v", err)

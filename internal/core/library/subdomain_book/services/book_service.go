@@ -6,6 +6,7 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=./mock_book.go -package=${GOPACKAGE}
 type BookRepository interface {
 	CreateBook(book dao.BookTable) (int, error)
 	GetBookByID(id int) (dao.BookTable, error)
