@@ -191,6 +191,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/debug/pprof/": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает информацию о профилировании для приложения",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pprof"
+                ],
+                "summary": "Профилирование приложения",
+                "responses": {}
+            }
+        },
         "/login": {
             "post": {
                 "description": "Аутентификация пользователя по имени пользователя и паролю, возвращает JWT-токен.",

@@ -5,6 +5,7 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/app"
 	"github.com/DoktorGhost/golibrary/internal/delivery/controllers/handlers"
 	"github.com/DoktorGhost/golibrary/internal/enum"
+	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -24,11 +25,6 @@ import (
 // @name Authorization
 // @in header
 func main() {
-
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
-
 	//инициализируем логгер
 	logger, err := zaplogger.NewZapLogger()
 	if err != nil {
@@ -64,6 +60,12 @@ func main() {
 	if err != nil {
 		logger.Error("Ошибка создания библиотеки:", "err", err)
 	}
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
+	metrics.Init()
 
 	// Запуск HTTP-сервера
 	logger.Info("Запуск сервера на порту :8080")

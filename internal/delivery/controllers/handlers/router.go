@@ -5,6 +5,7 @@ import (
 	"github.com/DoktorGhost/golibrary/pkg/logger"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -27,9 +28,14 @@ func SetupRoutes(provider *providers.UseCaseProvider, logger logger.Logger) *chi
 
 		r.Post("/user/add", handlerAddUser(provider, logger))
 		r.Get("/user/{id}", handlerGetUser(provider, logger))
+
+		//r.Get("/debug/pprof/", PprofHandler)
+
 	})
 
 	r.Post("/login", handlerLogin(provider, logger))
+
+	r.Handle("/metrics", promhttp.Handler())
 
 	// Настройка Swagger
 	r.Get("/swagger*", httpSwagger.WrapHandler)

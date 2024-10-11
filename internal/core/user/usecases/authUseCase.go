@@ -40,5 +40,3 @@ func (auc *AuthUseCase) Login(username, password string) (string, error) {
 	// Авторизация успешна, возвращаем JWT
 	return jwt, nil
 }
-
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mjg2NTMyNjUsInVzZXJuYW1lIjoic3RyaW5nIn0.YaVJTwBDn3RxT-evZLUR65mMwRhXmqAiGKftuJ_lu0w
