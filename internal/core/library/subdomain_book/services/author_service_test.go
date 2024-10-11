@@ -1,8 +1,9 @@
-package services
+package services_test
 
 import (
 	"errors"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
+	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -12,8 +13,8 @@ func TestAuthorService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockRepo := NewMockAuthorRepository(ctrl)
-	userService := NewAuthorService(mockRepo)
+	mockRepo := services.NewMockAuthorRepository(ctrl)
+	userService := services.NewAuthorService(mockRepo)
 
 	// 1. AddAuthor успешный сценарий
 	t.Run("AddAuthor success", func(t *testing.T) {

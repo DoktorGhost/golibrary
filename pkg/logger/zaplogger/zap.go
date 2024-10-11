@@ -43,6 +43,15 @@ func (l *ZapLogger) Info(msg string, fields ...interface{}) {
 	}
 }
 
+// Debug
+func (l *ZapLogger) Debug(msg string, fields ...interface{}) {
+	if len(fields) > 0 {
+		l.zap.Sugar().Debugw(msg, fields...)
+	} else {
+		l.zap.Sugar().Debug(msg)
+	}
+}
+
 // Метод для записи сообщения об ошибке
 func (l *ZapLogger) Error(msg string, fields ...interface{}) {
 	if len(fields) > 0 {

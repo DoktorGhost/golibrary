@@ -1,7 +1,7 @@
 package providers
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	subdomainBook "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres"
 	subdomainRental "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres"
@@ -9,14 +9,14 @@ import (
 )
 
 type RepositoryProvider struct {
-	db *sql.DB
+	db *pgxpool.Pool
 
 	bookRepositoryPostgres   *subdomainBook.BookRepository
 	rentalRepositoryPostgres *subdomainRental.RentalRepository
 	usersRepositoryPostgres  *domainUser.UsersRepository
 }
 
-func NewRepositoryProvider(db *sql.DB) *RepositoryProvider {
+func NewRepositoryProvider(db *pgxpool.Pool) *RepositoryProvider {
 	return &RepositoryProvider{db: db}
 }
 

@@ -1,13 +1,13 @@
 package postgres
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UsersRepository struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
-func NewPostgresRepository(db *sql.DB) *UsersRepository {
+func NewPostgresRepository(db *pgxpool.Pool) *UsersRepository {
 	return &UsersRepository{db: db}
 }

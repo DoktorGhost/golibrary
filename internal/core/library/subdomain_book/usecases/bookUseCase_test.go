@@ -1,9 +1,10 @@
-package usecases
+package usecases_test
 
 import (
 	"errors"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	dao2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
+	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/usecases"
 
 	service2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	service3 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
@@ -27,7 +28,7 @@ func TestBookUseCase(t *testing.T) {
 	bookService := service2.NewBookService(mockRepoBook)
 
 	//юзкейсы
-	bookUseCase := NewBookUseCase(bookService, authorService, rentalService)
+	bookUseCase := usecases.NewBookUseCase(bookService, authorService, rentalService)
 
 	// 1. AddBook. GetAuthorById fail
 	t.Run("GetUserById fail", func(t *testing.T) {

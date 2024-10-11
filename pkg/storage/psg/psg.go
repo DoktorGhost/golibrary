@@ -1,9 +1,11 @@
 package psg
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/DoktorGhost/golibrary/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pressly/goose/v3"
 	"os"
 	"path/filepath"
@@ -11,7 +13,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func InitStorage(conf *config.Config) (*sql.DB, error) {
+func InitStorage(conf config.DBConfig) (*pgxpool.Pool, error) {
 	login := conf.DbLogin
 	password := conf.DbPass
 	host := conf.DbHost
@@ -20,12 +22,12 @@ func InitStorage(conf *config.Config) (*sql.DB, error) {
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", login, password, host, port, dbname)
 
-	db, err := sql.Open("pgx", dsn)
+	dbpool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка подключения к бд: %v", err)
 	}
 
-	err = db.Ping()
+	err = dbpool.Ping(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("ошибка запроса к бд: %v", err)
 	}
@@ -42,12 +44,15 @@ func InitStorage(conf *config.Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("директория миграций не существует: %v", migrationsDir)
 	}
 
-	fmt.Println("Path to migrations:", migrationsDir)
-
 	// Применяем миграции
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка подключения к БД для миграций: %v", err)
+	}
+
 	if err := goose.Up(db, migrationsDir); err != nil {
 		return nil, fmt.Errorf("ошибка применения миграций: %v", err)
 	}
 
-	return db, nil
+	return dbpool, nil
 }
