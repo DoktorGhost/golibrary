@@ -7,7 +7,6 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"github.com/DoktorGhost/golibrary/internal/providers"
-	"github.com/DoktorGhost/golibrary/pkg/logger"
 	"io"
 	"net/http"
 	"strconv"
@@ -25,7 +24,7 @@ import (
 // @Failure 500 {string} string "Ошибка при добавлении автора"
 // @Router /author/add [post]
 // @Security BearerAuth
-func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		metrics.RequestCount.WithLabelValues(r.Method, r.URL.Path).Inc()
@@ -39,7 +38,7 @@ func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
-			logger.Error("Ошибка чтения тела запроса", err)
+			log.Error("Ошибка чтения тела запроса", err)
 			return
 		}
 		defer r.Body.Close()
@@ -48,14 +47,14 @@ func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.
 		var author entities.AuthorRequest
 		if err := json.Unmarshal(body, &author); err != nil {
 			http.Error(w, "Ошибка декодирования JSON: "+err.Error(), http.StatusBadRequest)
-			logger.Error("Ошибка декодирования JSON", err)
+			log.Error("Ошибка декодирования JSON", err)
 			return
 		}
 
 		id, err := useCaseProvider.BookUseCase.AddAuthor(author.Name, author.Surname, author.Patronymic)
 		if err != nil {
 			http.Error(w, "Ошибка при добавлении автора: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при добавлении автора", err)
+			log.Error("Ошибка при добавлении автора", err)
 			return
 		}
 
@@ -67,7 +66,7 @@ func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.
 		responseMessage := "Автор успешно добавлен, ID: " + strconv.Itoa(id)
 		w.Write([]byte(responseMessage))
 
-		logger.Info("Автор успешно добавлен", "id", id)
+		log.Info("Автор успешно добавлен", "id", id)
 
 	}
 }
@@ -83,7 +82,7 @@ func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider, logger logger.
 // @Failure 500 {string} string "Ошибка при добавлении книги"
 // @Router /books/add [post]
 // @Security BearerAuth
-func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerAddBook(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -94,7 +93,7 @@ func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
-			logger.Error("Ошибка чтения тела запроса", err)
+			log.Error("Ошибка чтения тела запроса", err)
 			return
 		}
 		defer r.Body.Close()
@@ -103,14 +102,14 @@ func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		var book entities.BookRequest
 		if err := json.Unmarshal(body, &book); err != nil {
 			http.Error(w, "Ошибка декодирования JSON: "+err.Error(), http.StatusBadRequest)
-			logger.Error("Ошибка декодирования JSON", err)
+			log.Error("Ошибка декодирования JSON", err)
 			return
 		}
 
 		id, err := useCaseProvider.BookUseCase.AddBook(dao.BookTable{Title: book.Title, AuthorID: book.AuthorID})
 		if err != nil {
 			http.Error(w, "Ошибка при добавлении книги: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при добавлении книги", err)
+			log.Error("Ошибка при добавлении книги", err)
 			return
 		}
 
@@ -119,7 +118,7 @@ func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		responseMessage := "Книга успешно добавлена, ID: " + strconv.Itoa(id)
 		w.Write([]byte(responseMessage))
 
-		logger.Info("Книга успешно добавлена", "id", id)
+		log.Info("Книга успешно добавлена", "id", id)
 
 	}
 }
@@ -133,7 +132,7 @@ func handlerAddBook(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 // @Failure 500 {string} string "Ошибка получения книг"
 // @Router /books [get]
 // @Security BearerAuth
-func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -143,7 +142,7 @@ func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider, logger logge
 		books, err := useCaseProvider.BookUseCase.GetAllBookWithAuthor()
 		if err != nil {
 			http.Error(w, "Ошибка получения книг: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка получения книг", err)
+			log.Error("Ошибка получения книг", err)
 			return
 		}
 
@@ -154,12 +153,12 @@ func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider, logger logge
 		response, err := json.Marshal(books)
 		if err != nil {
 			http.Error(w, "Ошибка при преобразовании данных в JSON: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при преобразовании данных в JSON", err)
+			log.Error("Ошибка при преобразовании данных в JSON", err)
 			return
 		}
 
 		w.Write(response)
-		logger.Info("Книги успешно получены", "count", len(books))
+		log.Info("Книги успешно получены", "count", len(books))
 	}
 }
 
@@ -172,7 +171,7 @@ func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider, logger logge
 // @Failure 500 {string} string "Ошибка получения авторов"
 // @Router /authors [get]
 // @Security BearerAuth
-func handlerGetAllAuthors(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerGetAllAuthors(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -182,7 +181,7 @@ func handlerGetAllAuthors(useCaseProvider *providers.UseCaseProvider, logger log
 		books, err := useCaseProvider.BookUseCase.GetAllAuthorWithBooks()
 		if err != nil {
 			http.Error(w, "Ошибка получения авторов: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка получения авторов", err)
+			log.Error("Ошибка получения авторов", err)
 			return
 		}
 
@@ -193,12 +192,12 @@ func handlerGetAllAuthors(useCaseProvider *providers.UseCaseProvider, logger log
 		response, err := json.Marshal(books)
 		if err != nil {
 			http.Error(w, "Ошибка при преобразовании данных в JSON: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при преобразовании данных в JSON", err)
+			log.Error("Ошибка при преобразовании данных в JSON", err)
 			return
 		}
 
 		w.Write(response)
 
-		logger.Info("Авторы успешно получены", "count", len(books))
+		log.Info("Авторы успешно получены", "count", len(books))
 	}
 }

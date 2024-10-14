@@ -1,9 +1,9 @@
 package config
 
 import (
+	"fmt"
+	"github.com/spf13/viper"
 	"sync"
-
-	"github.com/caarlos0/env/v6"
 )
 
 var (
@@ -13,29 +13,31 @@ var (
 
 type config struct {
 	LibraryPostgres DBConfig
-
-	Secrets SecretConfig
+	Secrets         SecretConfig
 }
 
 type DBConfig struct {
-	DbHost  string `env:"DB_HOST"`
-	DbPort  string `env:"DB_PORT"`
-	DbName  string `env:"DB_NAME"`
-	DbLogin string `env:"DB_LOGIN"`
-	DbPass  string `env:"DB_PASS"`
+	DbHost  string `mapstructure:"DB_HOST"`
+	DbPort  string `mapstructure:"DB_PORT"`
+	DbName  string `mapstructure:"DB_NAME"`
+	DbLogin string `mapstructure:"DB_LOGIN"`
+	DbPass  string `mapstructure:"DB_PASS"`
 }
 
 type SecretConfig struct {
-	JWTSecret string `env:"SECRET_KEY_JWT"`
+	JWTSecret string `mapstructure:"SECRET_KEY_JWT"`
 }
 
 func LoadConfig() config {
 	once.Do(func() {
-		//считываем все переменны окружения в cfg
-		if err := env.Parse(&Config); err != nil {
-			panic(err)
+		// Декодируем значения в структуру Config
+		if err := viper.Unmarshal(&Config.LibraryPostgres); err != nil {
+			panic(fmt.Errorf("ошибка декодирования конфигурации: %w", err))
+		}
+		if err := viper.Unmarshal(&Config.Secrets); err != nil {
+			panic(fmt.Errorf("ошибка декодирования конфигурации: %w", err))
 		}
 	})
-	return Config
 
+	return Config
 }

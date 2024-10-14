@@ -7,8 +7,8 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/delivery/http/server"
 	"github.com/DoktorGhost/golibrary/internal/enum"
 	"github.com/DoktorGhost/golibrary/internal/metrics"
-	"github.com/joho/godotenv"
-	"log"
+	"github.com/DoktorGhost/golibrary/pkg/logger"
+	"github.com/spf13/viper"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -17,7 +17,6 @@ import (
 
 	"context"
 	"github.com/DoktorGhost/golibrary/config"
-	"github.com/DoktorGhost/golibrary/pkg/logger/zaplogger"
 	"github.com/DoktorGhost/golibrary/pkg/storage/psg"
 )
 
@@ -31,28 +30,33 @@ import (
 // @in header
 func main() {
 	//инициализируем логгер
-	logger, err := zaplogger.NewZapLogger()
+	log, err := logger.GetLogger()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer logger.Sync()
+	defer log.Sync()
 
-	err = godotenv.Load("../../.env")
+	// Установка файла конфигурации .env
+	viper.SetConfigFile("../../.env")
+
+	// Чтение файла .env
+	err = viper.ReadInConfig()
 	if err != nil {
-		logger.Error("ошибка загрузки файла .env", "error", err)
+		log.Error("Ошибка загрузки файла .env", "error", err)
 		return
 	} else {
-		logger.Info(".env файл успешно загружен")
+		log.Info(".env файл успешно загружен")
 	}
+	viper.AutomaticEnv()
 
 	pgsqlConnector, err := psg.InitStorage(config.LoadConfig().LibraryPostgres)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Error(err.Error())
 		return
 	}
 	defer pgsqlConnector.Close()
-	logger.Info("соединение с БД установлено")
+	log.Info("соединение с БД установлено")
 
 	cont := app.Init(pgsqlConnector)
 
@@ -61,36 +65,30 @@ func main() {
 
 	ctx = context.WithValue(ctx, enum.UseCaseKeyProvider, cont.UseCaseProvider)
 
-	r := handlers.SetupRoutes(cont.UseCaseProvider, logger)
+	r := handlers.SetupRoutes(cont.UseCaseProvider)
 
 	httpServer := server.NewHttpServer(r, ":8080")
 	httpServer.Serve()
 
 	err = cont.UseCaseProvider.DataUseCase.AddLibrary()
 	if err != nil {
-		logger.Error("Ошибка создания библиотеки:", "err", err)
+		log.Error("Ошибка создания библиотеки:", "err", err)
 	}
 
 	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
+		fmt.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
 
 	metrics.Init()
-
-	//// Запуск HTTP-сервера
-	//logger.Info("Запуск сервера на порту :8080")
-	//if err := http.ListenAndServe(":8080", r); err != nil {
-	//	logger.Fatal(err.Error())
-	//}
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
 
 	select {
 	case killSignal := <-interrupt:
-		logger.Info("Выключение сервера", "signal", killSignal)
+		log.Info("Выключение сервера", "signal", killSignal)
 	case err = <-httpServer.Notify():
-		logger.Error("Ошибка сервера", "error", err)
+		log.Error("Ошибка сервера", "error", err)
 	}
 
 	httpServer.Shutdown()

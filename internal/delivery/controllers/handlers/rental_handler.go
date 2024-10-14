@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/DoktorGhost/golibrary/internal/providers"
-	"github.com/DoktorGhost/golibrary/pkg/logger"
 	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
@@ -18,7 +17,7 @@ import (
 // @Failure 500 {string} string "Ошибка чтения аренды"
 // @Router /rentals [get]
 // @Security BearerAuth
-func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -28,7 +27,7 @@ func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider, logger log
 		rentals, err := useCaseProvider.LibraryUseCase.GetUserRentals()
 		if err != nil {
 			http.Error(w, "Ошибка чтения аренды: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка чтения аренды", err)
+			log.Error("Ошибка чтения аренды", err)
 			return
 		}
 
@@ -36,11 +35,11 @@ func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider, logger log
 
 		if err := json.NewEncoder(w).Encode(rentals); err != nil {
 			http.Error(w, "Ошибка кодирования ответа: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка кодирования ответа", err)
+			log.Error("Ошибка кодирования ответа", err)
 			return
 		}
 
-		logger.Info("Запрос на получение всех записей аренды успешно выполнен")
+		log.Info("Запрос на получение всех записей аренды успешно выполнен")
 
 	}
 }
@@ -57,7 +56,7 @@ func handlerGetAllRentals(useCaseProvider *providers.UseCaseProvider, logger log
 // @Failure 500 {string} string "Ошибка при выдаче книги"
 // @Router /rental/add/{user_id}/{book_id} [post]
 // @Security BearerAuth
-func handlerGiveBook(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerGiveBook(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -84,7 +83,7 @@ func handlerGiveBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 		rentalID, err := useCaseProvider.LibraryUseCase.GiveBook(bookID, userID)
 		if err != nil {
 			http.Error(w, "Ошибка при выдаче книги: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при выдаче книги", err)
+			log.Error("Ошибка при выдаче книги", err)
 			return
 		}
 
@@ -93,7 +92,7 @@ func handlerGiveBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 
 		responseMessage := "Книга успешно выдана, RentalID: " + strconv.Itoa(rentalID)
 		w.Write([]byte(responseMessage))
-		logger.Info("Книга успешно выдана", "rentalID", rentalID, "userID", userID, "bookID", bookID)
+		log.Info("Книга успешно выдана", "rentalID", rentalID, "userID", userID, "bookID", bookID)
 	}
 }
 
@@ -108,7 +107,7 @@ func handlerGiveBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 // @Failure 500 {string} string "Ошибка при возврате книги"
 // @Router /rental/back/{book_id} [post]
 // @Security BearerAuth
-func handlerBackBook(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerBackBook(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -128,7 +127,7 @@ func handlerBackBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 		err = useCaseProvider.LibraryUseCase.BackBook(bookID)
 		if err != nil {
 			http.Error(w, "Ошибка при возврате книги: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при возврате книги", err)
+			log.Error("Ошибка при возврате книги", err)
 			return
 		}
 
@@ -136,7 +135,7 @@ func handlerBackBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 		w.WriteHeader(http.StatusOK)
 
 		w.Write([]byte("Книга успешно возвращена"))
-		logger.Info("Книга успешно возвращена", "bookID", bookID)
+		log.Info("Книга успешно возвращена", "bookID", bookID)
 	}
 }
 
@@ -152,7 +151,7 @@ func handlerBackBook(useCaseProvider *providers.UseCaseProvider, logger logger.L
 // @Failure 500 {string} string "Ошибка получения топа авторов"
 // @Router /top/{period}/{limit} [get]
 // @Security BearerAuth
-func handlerGetTop(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerGetTop(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -178,7 +177,7 @@ func handlerGetTop(useCaseProvider *providers.UseCaseProvider, logger logger.Log
 		topAuthors, err := useCaseProvider.LibraryUseCase.GetTopAuthors(period, limit)
 		if err != nil {
 			http.Error(w, "Ошибка получения топа авторов: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка получения топа авторов", err)
+			log.Error("Ошибка получения топа авторов", err)
 			return
 		}
 
@@ -186,11 +185,11 @@ func handlerGetTop(useCaseProvider *providers.UseCaseProvider, logger logger.Log
 
 		if err := json.NewEncoder(w).Encode(topAuthors); err != nil {
 			http.Error(w, "Ошибка кодирования ответа: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка кодирования ответа", err)
+			log.Error("Ошибка кодирования ответа", err)
 			return
 		}
 
-		logger.Info("Запрос на получение топа авторов успешно выполнен")
+		log.Info("Запрос на получение топа авторов успешно выполнен")
 
 	}
 }
