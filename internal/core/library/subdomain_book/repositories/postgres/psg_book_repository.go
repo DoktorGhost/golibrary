@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -10,7 +11,7 @@ import (
 func (s *BookRepository) CreateBook(book dao.BookTable) (int, error) {
 	var id int
 	query := `INSERT INTO library.books (title, author_id) VALUES ($1, $2) RETURNING id`
-	err := s.db.QueryRow(query, book.Title, book.AuthorID).Scan(&id)
+	err := s.db.QueryRow(context.Background(), query, book.Title, book.AuthorID).Scan(&id)
 
 	if err != nil {
 		return 0, fmt.Errorf("ошибка добавления книги с названием '%s' и автором ID %d: %v", book.Title, book.AuthorID, err)
@@ -22,7 +23,7 @@ func (s *BookRepository) CreateBook(book dao.BookTable) (int, error) {
 func (s *BookRepository) GetBookByID(id int) (dao.BookTable, error) {
 	var result dao.BookTable
 	query := `SELECT title, author_id FROM library.books WHERE id = $1`
-	err := s.db.QueryRow(query, id).Scan(&result.Title, &result.AuthorID)
+	err := s.db.QueryRow(context.Background(), query, id).Scan(&result.Title, &result.AuthorID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -37,17 +38,14 @@ func (s *BookRepository) GetBookByID(id int) (dao.BookTable, error) {
 
 func (s *BookRepository) UpdateBook(book dao.BookTable) error {
 	query := `UPDATE library.books SET title = $1, author_id = $2 WHERE id = $3`
-	result, err := s.db.Exec(query, book.Title, book.AuthorID, book.ID)
+	result, err := s.db.Exec(context.Background(), query, book.Title, book.AuthorID, book.ID)
 
 	if err != nil {
 		return fmt.Errorf("ошибка обновления книги: %v", err)
 	}
 
 	// Проверяем, была ли обновлена хотя бы одна запись
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("ошибка получения результата обновления: %v", err)
-	}
+	rowsAffected := result.RowsAffected()
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("книга с ID %d не найдена", book.ID)
@@ -58,16 +56,13 @@ func (s *BookRepository) UpdateBook(book dao.BookTable) error {
 
 func (s *BookRepository) DeleteBook(id int) error {
 	query := `DELETE FROM library.books WHERE id=$1`
-	result, err := s.db.Exec(query, id)
+	result, err := s.db.Exec(context.Background(), query, id)
 	if err != nil {
 		return fmt.Errorf("ошибка удаления книги: %v", err)
 	}
 
 	// Проверяем, была ли удалена хотя бы одна запись
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("ошибка получения результата удаления: %v", err)
-	}
+	rowsAffected := result.RowsAffected()
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("книга с ID %d не найдена", id)
@@ -78,7 +73,7 @@ func (s *BookRepository) DeleteBook(id int) error {
 
 func (s *BookRepository) GetAllBooks() ([]dao.BookTable, error) {
 	query := `SELECT id, title, author_id FROM library.books;`
-	rows, err := s.db.Query(query)
+	rows, err := s.db.Query(context.Background(), query)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка выполнения запроса: %v", err)
 	}

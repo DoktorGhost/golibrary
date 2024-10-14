@@ -1,13 +1,13 @@
 package postgres
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type BookRepository struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
-func NewBookPostgresRepository(db *sql.DB) *BookRepository {
+func NewBookPostgresRepository(db *pgxpool.Pool) *BookRepository {
 	return &BookRepository{db: db}
 }

@@ -1,9 +1,10 @@
-package usecases
+package usecases_test
 
 import (
 	"errors"
 	dao3 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 	service2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
+	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/usecases"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/entities"
 	dao2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres/dao"
 
@@ -32,9 +33,8 @@ func TestLibraryUseCase(t *testing.T) {
 	bookService := service2.NewBookService(mockRepoBook)
 
 	//юзкейсы
-	//userUseCase := usecases.NewUsersUseCase(userService)
-	bookUseCase := NewBookUseCase(bookService, authorService, rentalService)
-	libraryUseCase := NewLibraryUseCase(rentalService, userService, bookUseCase, authorService)
+	bookUseCase := usecases.NewBookUseCase(bookService, authorService, rentalService)
+	libraryUseCase := usecases.NewLibraryUseCase(rentalService, userService, bookUseCase, authorService)
 
 	// 1. GiveBook. Ошибка в GetUserById
 	t.Run("Ошибка в GetUserById", func(t *testing.T) {

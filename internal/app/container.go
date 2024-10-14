@@ -1,36 +1,32 @@
 package app
 
 import (
-	"database/sql"
 	"github.com/DoktorGhost/golibrary/config"
-	"sync"
-
 	"github.com/DoktorGhost/golibrary/internal/providers"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (
 	Container container
-	once      sync.Once
 )
 
 type container struct {
 	UseCaseProvider *providers.UseCaseProvider
 }
 
-func Init(db *sql.DB, conf *config.Config) container {
-	once.Do(func() {
-		repositoryProvider := providers.NewRepositoryProvider(db)
-		repositoryProvider.RegisterDependencies()
+func Init(db *pgxpool.Pool) container {
+	repositoryProvider := providers.NewRepositoryProvider(db)
+	repositoryProvider.RegisterDependencies()
 
-		serviceProvider := providers.NewServiceProvider()
-		serviceProvider.RegisterDependencies(repositoryProvider)
+	serviceProvider := providers.NewServiceProvider()
+	serviceProvider.RegisterDependencies(repositoryProvider)
 
-		useCaseProvider := providers.NewUseCaseProvider()
-		useCaseProvider.RegisterDependencies(serviceProvider, conf.JWTSecret)
+	useCaseProvider := providers.NewUseCaseProvider()
+	useCaseProvider.RegisterDependencies(serviceProvider, config.LoadConfig().Secrets.JWTSecret)
 
-		Container = container{
-			UseCaseProvider: useCaseProvider,
-		}
-	})
+	Container = container{
+		UseCaseProvider: useCaseProvider,
+	}
+
 	return Container
 }

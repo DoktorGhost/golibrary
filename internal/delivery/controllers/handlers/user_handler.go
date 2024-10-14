@@ -5,7 +5,6 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	entities2 "github.com/DoktorGhost/golibrary/internal/core/user/entities"
 	"github.com/DoktorGhost/golibrary/internal/providers"
-	"github.com/DoktorGhost/golibrary/pkg/logger"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	"io"
@@ -24,7 +23,7 @@ import (
 // @Failure 500 {string} string "Ошибка при добавлении пользователя"
 // @Router /user/add [post]
 
-func handlerAddUser(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerAddUser(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -35,7 +34,7 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
-			logger.Error("Ошибка чтения тела запроса", err)
+			log.Error("Ошибка чтения тела запроса", err)
 			return
 		}
 		defer r.Body.Close()
@@ -44,7 +43,7 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		var user entities.RegisterData
 		if err := json.Unmarshal(body, &user); err != nil {
 			http.Error(w, "Ошибка декодирования JSON: "+err.Error(), http.StatusBadRequest)
-			logger.Error("Ошибка декодирования JSON", err)
+			log.Error("Ошибка декодирования JSON", err)
 			return
 		}
 
@@ -53,7 +52,7 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		id, err := useCaseProvider.UserUseCase.AddUser(user)
 		if err != nil {
 			http.Error(w, "Ошибка при добавлении пользователя: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при добавлении пользователя", err)
+			log.Error("Ошибка при добавлении пользователя", err)
 			return
 		}
 
@@ -62,7 +61,7 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		responseMessage := "Пользователь успешно добавлен, ID: " + strconv.Itoa(id)
 		w.Write([]byte(responseMessage))
 
-		logger.Info("Пользователь успешно добавлен", "id", id)
+		log.Info("Пользователь успешно добавлен", "id", id)
 
 	}
 }
@@ -78,7 +77,7 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 // @Failure 500 {string} string "Ошибка при получении пользователя"
 // @Router /user/{id} [get]
 // @Security BearerAuth
-func handlerGetUser(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerGetUser(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -89,7 +88,7 @@ func handlerGetUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
 			http.Error(w, "Неверный ID", http.StatusBadRequest)
-			logger.Error("Неверный ID", err)
+			log.Error("Неверный ID", err)
 			return
 		}
 
@@ -97,14 +96,14 @@ func handlerGetUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 		user, err := useCaseProvider.UserUseCase.GetUserByID(id)
 		if err != nil {
 			http.Error(w, "Ошибка при получении пользователя: "+err.Error(), http.StatusInternalServerError)
-			logger.Error("Ошибка при получении пользователя:", err)
+			log.Error("Ошибка при получении пользователя:", err)
 			return
 		}
 
 		// Отправляем успешный ответ с пользователем
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(user)
-		logger.Info("Пользователя успешно получен", "id", id)
+		log.Info("Пользователя успешно получен", "id", id)
 
 	}
 }
@@ -119,7 +118,7 @@ func handlerGetUser(useCaseProvider *providers.UseCaseProvider, logger logger.Lo
 // @Failure 400 {string} string "Ошибка декодирования данных или ошибка аутентификации"
 // @Failure 405 {string} string "Неправильный метод"
 // @Router /login [post]
-func handlerLogin(useCaseProvider *providers.UseCaseProvider, logger logger.Logger) http.HandlerFunc {
+func handlerLogin(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -137,7 +136,7 @@ func handlerLogin(useCaseProvider *providers.UseCaseProvider, logger logger.Logg
 		err := json.NewDecoder(r.Body).Decode(&loginData)
 		if err != nil {
 			http.Error(w, "Ошибка декодирования", http.StatusBadRequest)
-			logger.Error("Ошибка декодирования", err)
+			log.Error("Ошибка декодирования", err)
 			return
 		}
 
@@ -154,7 +153,7 @@ func handlerLogin(useCaseProvider *providers.UseCaseProvider, logger logger.Logg
 				// Проверка токена
 				tokenJWT, err := jwtauth.VerifyToken(useCaseProvider.AuthUseCase.TokenAuth, tokenString)
 				if err != nil {
-					logger.Error("Неверный токен", err)
+					log.Error("Неверный токен", err)
 				} else {
 					claims := tokenJWT.PrivateClaims()
 					username, ok := claims["username"].(string)
@@ -174,11 +173,11 @@ func handlerLogin(useCaseProvider *providers.UseCaseProvider, logger logger.Logg
 			token, err = useCaseProvider.AuthUseCase.Login(loginData.Username, loginData.Password)
 			if err != nil {
 				http.Error(w, "Ошибка аутентификации", http.StatusBadRequest)
-				logger.Error("Ошибка аутентификации", err)
+				log.Error("Ошибка аутентификации", err)
 				return
 			}
 		} else {
-			logger.Error("Используем старый токен", err)
+			log.Error("Используем старый токен", err)
 		}
 
 		// Успешная аутентификация — возвращаем токен

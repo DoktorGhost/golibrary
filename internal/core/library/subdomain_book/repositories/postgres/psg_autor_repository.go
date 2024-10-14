@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -10,7 +11,7 @@ import (
 func (s *BookRepository) CreateAuthor(name string) (int, error) {
 	var id int
 	query := `INSERT INTO library.authors (name) VALUES ($1) RETURNING id`
-	err := s.db.QueryRow(query, name).Scan(&id)
+	err := s.db.QueryRow(context.Background(), query, name).Scan(&id)
 
 	if err != nil {
 		return 0, fmt.Errorf("ошибка добавления записи: %v", err)
@@ -22,7 +23,7 @@ func (s *BookRepository) CreateAuthor(name string) (int, error) {
 func (s *BookRepository) GetAuthorByID(id int) (dao.AuthorTable, error) {
 	var result dao.AuthorTable
 	query := `SELECT name FROM library.authors WHERE id = $1`
-	err := s.db.QueryRow(query, id).Scan(&result.Name)
+	err := s.db.QueryRow(context.Background(), query, id).Scan(&result.Name)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -36,17 +37,14 @@ func (s *BookRepository) GetAuthorByID(id int) (dao.AuthorTable, error) {
 
 func (s *BookRepository) UpdateAuthor(author dao.AuthorTable) error {
 	query := `UPDATE library.authors SET name = $1 WHERE id = $2`
-	result, err := s.db.Exec(query, author.Name, author.ID)
+	result, err := s.db.Exec(context.Background(), query, author.Name, author.ID)
 
 	if err != nil {
 		return fmt.Errorf("ошибка обновления автора: %v", err)
 	}
 
 	// Проверяем, была ли обновлена хотя бы одна запись
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("ошибка получения результата обновления: %v", err)
-	}
+	rowsAffected := result.RowsAffected()
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("автор с ID %d не найден", author.ID)
@@ -57,16 +55,13 @@ func (s *BookRepository) UpdateAuthor(author dao.AuthorTable) error {
 
 func (s *BookRepository) DeleteAuthor(id int) error {
 	query := `DELETE FROM library.authors WHERE id=$1`
-	result, err := s.db.Exec(query, id)
+	result, err := s.db.Exec(context.Background(), query, id)
 	if err != nil {
 		return fmt.Errorf("ошибка удаления автора: %v", err)
 	}
 
 	// Проверяем, была ли удалена хотя бы одна запись
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("ошибка получения результата удаления: %v", err)
-	}
+	rowsAffected := result.RowsAffected()
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("автор с ID %d не найден", id)
@@ -77,7 +72,7 @@ func (s *BookRepository) DeleteAuthor(id int) error {
 
 func (s *BookRepository) GetAllAuthors() ([]dao.AuthorTable, error) {
 	query := `SELECT id, name FROM library.authors;`
-	rows, err := s.db.Query(query)
+	rows, err := s.db.Query(context.Background(), query)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка выполнения запроса: %v", err)
 	}
