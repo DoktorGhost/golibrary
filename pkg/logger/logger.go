@@ -1,6 +1,7 @@
-package zaplogger
+package logger
 
 import (
+	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -12,8 +13,23 @@ type ZapLogger struct {
 	zap *zap.Logger
 }
 
+// Переменная для хранения единственного экземпляра логгера
+var (
+	once   sync.Once
+	logger *ZapLogger
+)
+
+// Функция для получения единственного экземпляра логгера
+func GetLogger() (*ZapLogger, error) {
+	var err error
+	once.Do(func() {
+		logger, err = newZapLogger()
+	})
+	return logger, err
+}
+
 // Создание нового экземпляра логгера
-func NewZapLogger() (*ZapLogger, error) {
+func newZapLogger() (*ZapLogger, error) {
 	config := zap.NewProductionConfig() // Или zap.NewDevelopmentConfig()
 	config.Encoding = "console"         // Используем текстовый формат
 	config.EncoderConfig = zapcore.EncoderConfig{
@@ -27,11 +43,11 @@ func NewZapLogger() (*ZapLogger, error) {
 		EncodeLevel: zapcore.CapitalLevelEncoder,
 	}
 
-	logger, err := config.Build()
+	zapLogger, err := config.Build()
 	if err != nil {
 		return nil, err
 	}
-	return &ZapLogger{zap: logger}, nil
+	return &ZapLogger{zap: zapLogger}, nil
 }
 
 // Метод для записи информационного сообщения
@@ -43,7 +59,7 @@ func (l *ZapLogger) Info(msg string, fields ...interface{}) {
 	}
 }
 
-// Debug
+// Метод для записи отладочного сообщения
 func (l *ZapLogger) Debug(msg string, fields ...interface{}) {
 	if len(fields) > 0 {
 		l.zap.Sugar().Debugw(msg, fields...)
@@ -70,6 +86,7 @@ func (l *ZapLogger) Fatal(msg string, fields ...interface{}) {
 	}
 }
 
+// Метод для синхронизации логгера
 func (l *ZapLogger) Sync() {
 	_ = l.zap.Sync()
 }
