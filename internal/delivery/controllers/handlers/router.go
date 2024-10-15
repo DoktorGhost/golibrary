@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"github.com/DoktorGhost/golibrary/internal/providers"
 	"github.com/DoktorGhost/golibrary/pkg/logger"
 	"github.com/go-chi/chi"
@@ -17,6 +18,8 @@ func SetupRoutes(provider *providers.UseCaseProvider) *chi.Mux {
 	r := chi.NewRouter()
 	log, _ = logger.GetLogger()
 
+	r.Use(metrics.RequestMetricsMiddleware)
+
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(provider.AuthUseCase.TokenAuth))
 		r.Use(jwtauth.Authenticator)
@@ -31,12 +34,12 @@ func SetupRoutes(provider *providers.UseCaseProvider) *chi.Mux {
 		r.Post("/rental/add/{user_id}/{book_id}", handlerGiveBook(provider))
 		r.Post("/rental/back/{book_id}", handlerBackBook(provider))
 
-		r.Post("/user/add", handlerAddUser(provider))
 		r.Get("/user/{id}", handlerGetUser(provider))
 
 	})
 
 	r.Post("/login", handlerLogin(provider))
+	r.Post("/user/add", handlerAddUser(provider))
 
 	//метрики
 	r.Handle("/metrics", promhttp.Handler())

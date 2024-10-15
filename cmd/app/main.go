@@ -38,18 +38,19 @@ func main() {
 	defer log.Sync()
 
 	// Установка файла конфигурации .env
-	viper.SetConfigFile("../../.env")
+	viper.SetConfigFile(".env")
 
 	// Чтение файла .env
 	err = viper.ReadInConfig()
 	if err != nil {
-		log.Error("Ошибка загрузки файла .env", "error", err)
-		return
+		log.Debug("Ошибка загрузки файла .env", "error", err)
 	} else {
 		log.Info(".env файл успешно загружен")
 	}
+
 	viper.AutomaticEnv()
 
+	//соединение с БД
 	pgsqlConnector, err := psg.InitStorage(config.LoadConfig().LibraryPostgres)
 	if err != nil {
 		log.Error(err.Error())
@@ -67,6 +68,7 @@ func main() {
 
 	r := handlers.SetupRoutes(cont.UseCaseProvider)
 
+	//старт сервера
 	httpServer := server.NewHttpServer(r, ":8080")
 	httpServer.Serve()
 
@@ -75,10 +77,12 @@ func main() {
 		log.Error("Ошибка создания библиотеки:", "err", err)
 	}
 
+	//pprof
 	go func() {
 		fmt.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
 
+	//инициализация метрик
 	metrics.Init()
 
 	interrupt := make(chan os.Signal, 1)

@@ -22,7 +22,6 @@ import (
 // @Failure 400 {string} string "Ошибка декодирования JSON или чтения тела запроса"
 // @Failure 500 {string} string "Ошибка при добавлении пользователя"
 // @Router /user/add [post]
-
 func handlerAddUser(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

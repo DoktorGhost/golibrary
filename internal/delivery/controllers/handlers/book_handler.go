@@ -5,12 +5,10 @@ import (
 	_ "github.com/DoktorGhost/golibrary/docs"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
-	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"github.com/DoktorGhost/golibrary/internal/providers"
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 // @Summary Добавить автора
@@ -26,8 +24,6 @@ import (
 // @Security BearerAuth
 func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		metrics.RequestCount.WithLabelValues(r.Method, r.URL.Path).Inc()
 
 		if r.Method != http.MethodPost {
 			http.Error(w, "Неправильный метод", http.StatusMethodNotAllowed)
@@ -57,9 +53,6 @@ func handlerAddAuthor(useCaseProvider *providers.UseCaseProvider) http.HandlerFu
 			log.Error("Ошибка при добавлении автора", err)
 			return
 		}
-
-		duration := time.Since(start).Seconds()
-		metrics.RequestDuration.WithLabelValues(r.Method, r.URL.Path).Observe(duration)
 
 		// Успешный ответ
 		w.WriteHeader(http.StatusCreated)
