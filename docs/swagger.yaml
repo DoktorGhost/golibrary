@@ -69,6 +69,19 @@ definitions:
       username:
         type: string
     type: object
+  entities.RegisterData:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+      username:
+        type: string
+    type: object
   entities.UserWithRentedBooks:
     properties:
       full_name:
@@ -401,6 +414,36 @@ paths:
       security:
       - BearerAuth: []
       summary: Получить пользователя
+      tags:
+      - Users
+  /user/add:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет нового пользователя в систему.
+      parameters:
+      - description: Данные для регистрации пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.RegisterData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Пользователь успешно добавлен, ID: {id}'
+          schema:
+            type: string
+        "400":
+          description: Ошибка декодирования JSON или чтения тела запроса
+          schema:
+            type: string
+        "500":
+          description: Ошибка при добавлении пользователя
+          schema:
+            type: string
+      summary: Добавить пользователя
       tags:
       - Users
 securityDefinitions:
