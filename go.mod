@@ -26,7 +26,7 @@ require (
 require (
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/DoktorGhost/golibrary/pkg/logger v0.0.0-20241014091409-4f9794e9e5ca // indirect
+	github.com/DoktorGhost/platform/logger v0.0.0-20241018095906-ac826c4c9514 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
