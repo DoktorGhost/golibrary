@@ -7,6 +7,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg6
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/DoktorGhost/golibrary/pkg/logger v0.0.0-20241014091409-4f9794e9e5ca h1:wexii/+D+VSf0kq3NQbiKdt1vKtbgz2JjBgA8pGBEmU=
 github.com/DoktorGhost/golibrary/pkg/logger v0.0.0-20241014091409-4f9794e9e5ca/go.mod h1:PRDT+zginUfHLXxPwvNDz7aIHoX+LrZW4HkePZJDce8=
+github.com/DoktorGhost/platform/logger v0.0.0-20241018095906-ac826c4c9514 h1:iu0ToJypW+FKCOmR4wiX4jUoq65MYbS6V9qMdDIiGT8=
+github.com/DoktorGhost/platform/logger v0.0.0-20241018095906-ac826c4c9514/go.mod h1:hc6X7gy3E/1WU6sNG3HDDIZKA7u2yUFzovcwUdh6IpI=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/Masterminds/semver/v3 v3.1.1 h1:hLg3sBzpNErnxhQtUy/mmLR2I9foDujNK030IGemrRc=
