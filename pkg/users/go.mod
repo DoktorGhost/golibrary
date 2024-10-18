@@ -1,4 +1,4 @@
-module github.com/DoktorGhost/golibrary/pkg/users
+module github.com/DoktorGhost/golibrary/users
 
 go 1.22.7
 

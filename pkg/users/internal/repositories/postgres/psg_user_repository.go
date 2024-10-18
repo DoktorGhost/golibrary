@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/repositories/postgres/dao"
+	"github.com/DoktorGhost/golibrary/users/internal/repositories/postgres/dao"
 	"github.com/lib/pq"
 )
 

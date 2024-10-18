@@ -3,9 +3,9 @@ package psg
 import (
 	"context"
 	"fmt"
+	"github.com/DoktorGhost/golibrary/pkg/users/internal/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"users/internal/config"
 )
 
 func InitStorage(conf *config.Config, schema []byte) (*pgxpool.Pool, error) {

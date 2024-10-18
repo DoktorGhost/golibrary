@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/config"
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/provider/grpcProvider"
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/repositories/postgres"
-	pb "github.com/DoktorGhost/golibrary/pkg/users/pkg/proto"
-	"github.com/DoktorGhost/golibrary/pkg/users/pkg/storage/psg"
+	"github.com/DoktorGhost/golibrary/users/internal/config"
+	"github.com/DoktorGhost/golibrary/users/internal/provider/grpcProvider"
+	"github.com/DoktorGhost/golibrary/users/internal/repositories/postgres"
+	pb "github.com/DoktorGhost/golibrary/users/pkg/proto"
+	"github.com/DoktorGhost/golibrary/users/pkg/storage/psg"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -15,7 +15,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/services"
+	"github.com/DoktorGhost/golibrary/users/internal/services"
 )
 
 func main() {

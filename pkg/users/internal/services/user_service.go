@@ -2,7 +2,7 @@ package services
 
 import (
 	"fmt"
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/repositories/postgres/dao"
+	"github.com/DoktorGhost/golibrary/users/internal/repositories/postgres/dao"
 )
 
 // UserRepository определяет методы для работы с пользователями

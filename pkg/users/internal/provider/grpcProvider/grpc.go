@@ -2,9 +2,9 @@ package grpcProvider
 
 import (
 	"context"
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/repositories/postgres/dao"
-	"github.com/DoktorGhost/golibrary/pkg/users/internal/services"
-	pb "github.com/DoktorGhost/golibrary/pkg/users/pkg/proto"
+	"github.com/DoktorGhost/golibrary/users/internal/repositories/postgres/dao"
+	"github.com/DoktorGhost/golibrary/users/internal/services"
+	pb "github.com/DoktorGhost/golibrary/users/pkg/proto"
 )
 
 type UsersServiceServer struct {
