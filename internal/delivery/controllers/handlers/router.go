@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"github.com/DoktorGhost/golibrary/internal/providers"
-	"github.com/DoktorGhost/golibrary/pkg/logger"
+	"github.com/DoktorGhost/platform/logger"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
