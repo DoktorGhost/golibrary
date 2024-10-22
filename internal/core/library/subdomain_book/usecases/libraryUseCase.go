@@ -95,12 +95,12 @@ func (uc *LibraryUseCase) GetUserRentals() ([]entities.UserWithRentedBooks, erro
 	for userID, booksID := range rentalsID {
 		var rental entities.UserWithRentedBooks
 
-		user, err := uc.userService.GetUserById(userID)
+		username, err := uc.userService.GetUserById(userID)
 		if err != nil {
 			return nil, fmt.Errorf("ошибка получения автора: %v", err)
 		}
 		rental.ID = userID
-		rental.FullName = user.FullName
+		rental.Username = username
 
 		for _, bookID := range booksID {
 			book, err := uc.bookService.GetBookWithAuthor(bookID)

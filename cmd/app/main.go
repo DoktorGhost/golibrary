@@ -7,7 +7,7 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/delivery/http/server"
 	"github.com/DoktorGhost/golibrary/internal/enum"
 	"github.com/DoktorGhost/golibrary/internal/metrics"
-	"github.com/DoktorGhost/platform/logger"
+	"github.com/DoktorGhost/golibrary/pkg/logger"
 	"github.com/spf13/viper"
 	"net/http"
 	_ "net/http/pprof"

@@ -5,10 +5,10 @@ import (
 	domainRental "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
 	"math/rand"
 
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 	domainBook "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/usecases"
+	"github.com/DoktorGhost/golibrary/internal/core/user/entities"
 	"github.com/DoktorGhost/golibrary/pkg/randomData"
 	"github.com/brianvoe/gofakeit/v6"
 )

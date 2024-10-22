@@ -2,8 +2,10 @@ package usecases
 
 import (
 	"errors"
-	"github.com/DoktorGhost/golibrary/internal/auth"
+	"github.com/DoktorGhost/golibrary/internal/core/user/entities"
 	"github.com/go-chi/jwtauth"
+	"github.com/golang-jwt/jwt/v4"
+	"time"
 
 	"github.com/DoktorGhost/golibrary/internal/core/user/services"
 )
@@ -18,25 +20,22 @@ func NewAuthUseCase(userService *services.UserService, key string) *AuthUseCase 
 	return &AuthUseCase{userService: userService, TokenAuth: token}
 }
 
-func (auc *AuthUseCase) Login(username, password string) (string, error) {
-	user, err := auc.userService.GetUserByUsername(username)
+func (auc *AuthUseCase) Login(userData entities.Login) (string, error) {
+	user, err := auc.userService.Login(userData)
 	if err != nil {
-		if err != nil {
-			return "", errors.New("user not found")
-		}
+		return "", errors.New("login filed " + err.Error())
 	}
 
-	flag, err := auth.CheckPasswordHash(password, user.PasswordHash)
-	if err != nil {
-		return "", err
-	}
-
-	if !flag {
-		return "", errors.New("invalid password")
-	}
-
-	jwt, err := auth.GenerateJWT(username, auc.TokenAuth)
+	jwt, err := generateJWT(user.Username, auc.TokenAuth)
 
 	// Авторизация успешна, возвращаем JWT
 	return jwt, nil
+}
+
+func generateJWT(username string, tokenAuth *jwtauth.JWTAuth) (string, error) {
+	_, tokenString, err := tokenAuth.Encode(jwt.MapClaims{
+		"username": username,
+		"exp":      time.Now().Add(time.Minute * 1440).Unix(),
+	})
+	return tokenString, err
 }

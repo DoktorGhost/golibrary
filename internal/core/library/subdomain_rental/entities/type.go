@@ -4,6 +4,6 @@ import "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/en
 
 type UserWithRentedBooks struct {
 	ID          int             `json:"id"`
-	FullName    string          `json:"full_name"`
+	Username    string          `json:"username"`
 	RentedBooks []entities.Book `json:"rented_books"`
 }
