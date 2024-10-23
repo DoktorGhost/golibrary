@@ -37,7 +37,6 @@ type GrpcConfig struct {
 func LoadConfig() config {
 	once.Do(func() {
 		// Декодируем значения в структуру Config
-
 		viper.BindEnv("LibraryPostgres.DB_HOST", "DB_HOST")
 		viper.BindEnv("LibraryPostgres.DB_PORT", "DB_PORT")
 		viper.BindEnv("LibraryPostgres.DB_NAME", "DB_NAME")

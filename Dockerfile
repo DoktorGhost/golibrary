@@ -5,13 +5,13 @@ WORKDIR /src
 COPY . .
 
 RUN go mod download
-RUN go build ./cmd/app
+RUN go build -o app ./cmd/app/main.go
 
 FROM alpine:latest
 RUN apk update && apk add --no-cache curl
 WORKDIR /src
-COPY --from=app-builder /src/app .
+COPY --from=app-builder /src/app/ .
 COPY --from=app-builder /src/.env .
-COPY --from=app-builder /src/migrations migrations
+COPY --from=app-builder /src/migrations ./migrations
 
 CMD ["./app"]

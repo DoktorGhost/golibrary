@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"github.com/DoktorGhost/golibrary/internal/app"
 	"github.com/DoktorGhost/golibrary/internal/delivery/controllers/handlers"
+	"github.com/DoktorGhost/golibrary/internal/delivery/grpc/client"
 	"github.com/DoktorGhost/golibrary/internal/delivery/http/server"
 	"github.com/DoktorGhost/golibrary/internal/enum"
 	"github.com/DoktorGhost/golibrary/internal/metrics"
-	"github.com/DoktorGhost/golibrary/pkg/logger"
+	"github.com/DoktorGhost/platform/logger"
+	"github.com/DoktorGhost/platform/storage/psg"
 	"github.com/spf13/viper"
-	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -17,7 +18,6 @@ import (
 
 	"context"
 	"github.com/DoktorGhost/golibrary/config"
-	"github.com/DoktorGhost/golibrary/pkg/storage/psg"
 )
 
 // @title Library
@@ -50,8 +50,17 @@ func main() {
 
 	viper.AutomaticEnv()
 
+	config.LoadConfig()
+
 	//соединение с БД
-	pgsqlConnector, err := psg.InitStorage(config.LoadConfig().LibraryPostgres)
+	pgsqlConnector, err := psg.InitStorage(psg.DBConfig{
+		config.LoadConfig().LibraryPostgres.DbHost,
+		config.LoadConfig().LibraryPostgres.DbPort,
+		config.LoadConfig().LibraryPostgres.DbName,
+		config.LoadConfig().LibraryPostgres.DbLogin,
+		config.LoadConfig().LibraryPostgres.DbPass,
+	})
+
 	if err != nil {
 		log.Error(err.Error())
 		return
@@ -59,7 +68,11 @@ func main() {
 	defer pgsqlConnector.Close()
 	log.Info("соединение с БД установлено")
 
-	cont := app.Init(pgsqlConnector)
+	//grpc client
+	userClient, conn := client.InitUserClient()
+	defer conn.Close()
+
+	cont := app.Init(pgsqlConnector, userClient)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -76,11 +89,6 @@ func main() {
 	if err != nil {
 		log.Error("Ошибка создания библиотеки:", "err", err)
 	}
-
-	//pprof
-	go func() {
-		fmt.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 
 	//инициализация метрик
 	metrics.Init()

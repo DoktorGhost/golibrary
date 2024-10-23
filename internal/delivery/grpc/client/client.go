@@ -12,13 +12,13 @@ import (
 )
 
 type UserClient struct {
-	UserClient proto.ClientsServiceClient
+	proto.ClientsServiceClient
 }
 
 func InitUserClient() (*UserClient, *grpc.ClientConn) {
 	// Подключаемся к gRPC-серверу USER
-	log.Println("Connecting to User service at:", config.LoadConfig().GrpcConfig.UserHost+":"+config.LoadConfig().GrpcConfig.UserPort)
 	conn, err := grpc.Dial(config.LoadConfig().GrpcConfig.UserHost+":"+config.LoadConfig().GrpcConfig.UserPort, grpc.WithInsecure())
+	//conn, err := grpc.Dial("localhost:5000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -27,7 +27,7 @@ func InitUserClient() (*UserClient, *grpc.ClientConn) {
 	userClient := proto.NewClientsServiceClient(conn)
 
 	// Создаем сервис User, который будет использовать этот клиент
-	userService := &UserClient{UserClient: userClient}
+	userService := &UserClient{userClient}
 
 	log.Println("Connected to User service port:", config.LoadConfig().GrpcConfig.UserPort)
 	return userService, conn
@@ -45,7 +45,7 @@ func (a *UserClient) Register(userData entities.RegisterData) (string, error) {
 		Patronymic: userData.Patronymic,
 	}
 	// Вызываем метод Register в сервисе USER
-	resp, err := a.UserClient.Register(ctx, regData)
+	resp, err := a.ClientsServiceClient.Register(ctx, regData)
 	if err != nil {
 		return "", err
 	}
@@ -58,7 +58,7 @@ func (a *UserClient) Login(userData entities.Login) (entities.UserTable, error) 
 	defer cancel()
 
 	// Вызываем метод Login в сервисе USER
-	resp, err := a.UserClient.Login(ctx, &proto.LoginRequest{Username: userData.Username, Password: userData.Password})
+	resp, err := a.ClientsServiceClient.Login(ctx, &proto.LoginRequest{Username: userData.Username, Password: userData.Password})
 	if err != nil {
 		return result, err
 	}
@@ -76,7 +76,7 @@ func (a *UserClient) GetUserById(userID int) (string, error) {
 	defer cancel()
 
 	// Вызываем метод GetUserById в сервисе USER
-	resp, err := a.UserClient.GetUserByID(ctx, &proto.UserID{Id: int64(userID)})
+	resp, err := a.ClientsServiceClient.GetUserByID(ctx, &proto.UserID{Id: int64(userID)})
 	if err != nil {
 		return "", err
 	}
