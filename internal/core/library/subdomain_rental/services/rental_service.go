@@ -12,13 +12,10 @@ type RentalsRepository interface {
 	CreateRentalsInfo(userID, bookID int) (int, error)
 	GetRentalsInfoByID(id int) (dao.RentalsTable, error)
 	UpdateRentalsInfo(rentals dao.RentalsTable) error
-	DeleteRentalsInfo(id int) error
 	CreateRentals(bookID int) error
 	GetRentalsByID(id int) (int, error)
 	UpdateRentals(id, rentals_id int) error
-	DeleteRentals(id int) error
 	GetActiveRentals() (map[int][]int, error)
-	GetTopAuthors(days, limit int) ([]dao.TopAuthor, error)
 }
 
 type RentalService struct {
@@ -74,21 +71,6 @@ func (s *RentalService) UpdateRentalsInfo(rentals dao.RentalsTable) error {
 	return nil
 }
 
-func (s *RentalService) DeleteRentalsInfo(id int) error {
-	start := time.Now()
-
-	err := s.repo.DeleteRentalsInfo(id)
-
-	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("DeleteRentalsInfo", duration)
-
-	if err != nil {
-		return fmt.Errorf("ошибка удаления записи аренды: %v", err)
-	}
-
-	return nil
-}
-
 func (s *RentalService) CreateRentals(bookID int) error {
 	start := time.Now()
 
@@ -134,20 +116,6 @@ func (s *RentalService) UpdateRentals(id, rentalsID int) error {
 	return nil
 }
 
-func (s *RentalService) DeleteRentals(id int) error {
-	start := time.Now()
-
-	err := s.repo.DeleteRentals(id)
-
-	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("DeleteRentals", duration)
-
-	if err != nil {
-		return fmt.Errorf("ошибка удаления записи статуса книги: %v", err)
-	}
-	return nil
-}
-
 func (s *RentalService) GetActiveRentals() (map[int][]int, error) {
 	start := time.Now()
 
@@ -160,18 +128,4 @@ func (s *RentalService) GetActiveRentals() (map[int][]int, error) {
 		return nil, fmt.Errorf("ошибка получения записей активной аренды: %v", err)
 	}
 	return rentalID, nil
-}
-
-func (s *RentalService) GetTopAuthorsByPeriod(period, limit int) ([]dao.TopAuthor, error) {
-	start := time.Now()
-
-	authors, err := s.repo.GetTopAuthors(period, limit)
-
-	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetActiveRentals", duration)
-
-	if err != nil {
-		return nil, fmt.Errorf("ошибка получения топ авторов за период %d: %v", period, err)
-	}
-	return authors, nil
 }

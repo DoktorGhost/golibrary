@@ -3,7 +3,6 @@ package usecases
 import (
 	"errors"
 	"fmt"
-	services3 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/entities"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres/dao"
 	"time"
@@ -16,15 +15,13 @@ type LibraryUseCase struct {
 	rentalService *services2.RentalService
 	userService   *services.UserService
 	bookService   *BookUseCase
-	authorService *services3.AuthorService
 }
 
 func NewLibraryUseCase(
 	rentalService *services2.RentalService,
 	userService *services.UserService,
-	bookService *BookUseCase,
-	authorService *services3.AuthorService) *LibraryUseCase {
-	return &LibraryUseCase{rentalService, userService, bookService, authorService}
+	bookService *BookUseCase) *LibraryUseCase {
+	return &LibraryUseCase{rentalService, userService, bookService}
 }
 
 // GiveBook выдать книгу
@@ -103,7 +100,7 @@ func (uc *LibraryUseCase) GetUserRentals() ([]entities.UserWithRentedBooks, erro
 		rental.Username = username
 
 		for _, bookID := range booksID {
-			book, err := uc.bookService.GetBookWithAuthor(bookID)
+			book, err := uc.bookService.GetBookWithAutor(bookID)
 			if err != nil {
 				return nil, err
 			}

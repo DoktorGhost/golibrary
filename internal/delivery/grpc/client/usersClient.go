@@ -18,7 +18,6 @@ type UserClient struct {
 func InitUserClient() (*UserClient, *grpc.ClientConn) {
 	// Подключаемся к gRPC-серверу USER
 	conn, err := grpc.Dial(config.LoadConfig().GrpcConfig.UserHost+":"+config.LoadConfig().GrpcConfig.UserPort, grpc.WithInsecure())
-	//conn, err := grpc.Dial("localhost:5000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

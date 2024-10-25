@@ -32,6 +32,8 @@ type SecretConfig struct {
 type GrpcConfig struct {
 	UserHost string `mapstructure:"USER_HOST"`
 	UserPort string `mapstructure:"USER_PORT"`
+	BookHost string `mapstructure:"BOOK_HOST"`
+	BookPort string `mapstructure:"BOOK_PORT"`
 }
 
 func LoadConfig() config {
@@ -47,6 +49,9 @@ func LoadConfig() config {
 
 		viper.BindEnv("GrpcConfig.USER_HOST", "USER_HOST")
 		viper.BindEnv("GrpcConfig.USER_PORT", "USER_PORT")
+
+		viper.BindEnv("GrpcConfig.BOOK_HOST", "BOOK_HOST")
+		viper.BindEnv("GrpcConfig.BOOK_PORT", "BOOK_PORT")
 
 		if err := viper.Unmarshal(&Config); err != nil {
 			panic(fmt.Errorf("ошибка декодирования конфигурации: %w", err))

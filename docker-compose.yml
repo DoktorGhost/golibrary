@@ -1,3 +1,4 @@
+# docker network create golibrary_shared
 version: '3.8'
 
 services:
@@ -14,15 +15,18 @@ services:
       - DB_LOGIN=admin
       - DB_PASS=drowssap
       - SECRET_KEY_JWT=aAbBcCdDeE123@
-      - USER_HOST=app
-      - USER_PORT=5000
+      - USER_HOST=users
+      - USER_PORT=5002
+      - BOOK_HOST=books
+      - BOOK_PORT=5001
     depends_on:
       - postgres
       - prometheus
       - grafana
       - jaeger
     networks:
-      - golibrary-clients_user-network
+      - golibrary_shared
+
 
   postgres:
     image: postgres:13
@@ -30,12 +34,10 @@ services:
       POSTGRES_DB: dbname
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: drowssap
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - golibrary-clients_user-network
+      - golibrary_shared
 
   prometheus:
     image: prom/prometheus
@@ -46,7 +48,7 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     networks:
-      - golibrary-clients_user-network
+      - golibrary_shared
 
   grafana:
     image: grafana/grafana
@@ -57,7 +59,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - golibrary-clients_user-network
+      - golibrary_shared
 
   jaeger:
     image: jaegertracing/all-in-one:1.43
@@ -72,11 +74,11 @@ services:
     environment:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
     networks:
-      - golibrary-clients_user-network
-
-networks:
-  golibrary-clients_user-network:
-    external: true
+      - golibrary_shared
 
 volumes:
   postgres_data:
+
+networks:
+  golibrary_shared:
+    external: true

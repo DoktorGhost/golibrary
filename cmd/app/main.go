@@ -10,11 +10,13 @@ import (
 	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"github.com/DoktorGhost/platform/logger"
 	"github.com/DoktorGhost/platform/storage/psg"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"context"
 	"github.com/DoktorGhost/golibrary/config"
@@ -52,27 +54,35 @@ func main() {
 
 	config.LoadConfig()
 
-	//соединение с БД
-	pgsqlConnector, err := psg.InitStorage(psg.DBConfig{
-		config.LoadConfig().LibraryPostgres.DbHost,
-		config.LoadConfig().LibraryPostgres.DbPort,
-		config.LoadConfig().LibraryPostgres.DbName,
-		config.LoadConfig().LibraryPostgres.DbLogin,
-		config.LoadConfig().LibraryPostgres.DbPass,
-	})
-
-	if err != nil {
-		log.Error(err.Error())
-		return
+	// Инициализируем подключение к БД
+	var pgsqlConnector *pgxpool.Pool
+	for i := 0; i < 5; i++ {
+		pgsqlConnector, err = psg.InitStorage(psg.DBConfig{
+			config.LoadConfig().LibraryPostgres.DbHost,
+			config.LoadConfig().LibraryPostgres.DbPort,
+			config.LoadConfig().LibraryPostgres.DbName,
+			config.LoadConfig().LibraryPostgres.DbLogin,
+			config.LoadConfig().LibraryPostgres.DbPass,
+		})
+		if err != nil {
+			log.Error(err.Error())
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		log.Info("соединение с БД установлено")
+		break
 	}
-	defer pgsqlConnector.Close()
-	log.Info("соединение с БД установлено")
 
-	//grpc client
+	defer pgsqlConnector.Close()
+
+	//grpc clients
 	userClient, conn := client.InitUserClient()
 	defer conn.Close()
 
-	cont := app.Init(pgsqlConnector, userClient)
+	bookClient, conn := client.InitBookClient()
+	defer conn.Close()
+
+	cont := app.Init(pgsqlConnector, userClient, bookClient)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

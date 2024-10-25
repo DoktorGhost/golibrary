@@ -61,20 +61,3 @@ func (s *RentalRepository) UpdateRentals(id, rentals_id int) error {
 
 	return nil
 }
-
-func (s *RentalRepository) DeleteRentals(id int) error {
-	query := `DELETE FROM rentals WHERE id=$1`
-	result, err := s.db.Exec(context.Background(), query, id)
-	if err != nil {
-		return fmt.Errorf("ошибка удаления записи: %v", err)
-	}
-
-	// Проверяем, была ли удалена хотя бы одна запись
-	rowsAffected := result.RowsAffected()
-
-	if rowsAffected == 0 {
-		return fmt.Errorf("запись с ID %d не найдена", id)
-	}
-
-	return nil
-}
