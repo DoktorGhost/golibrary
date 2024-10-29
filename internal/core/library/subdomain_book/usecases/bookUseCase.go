@@ -3,32 +3,24 @@ package usecases
 import (
 	"fmt"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
+
 	services2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
-	"github.com/DoktorGhost/golibrary/pkg/validator"
 )
 
 type BookUseCase struct {
 	bookService   *services2.BookService
-	authorService *services2.AuthorService
 	rentalService *services.RentalService
 }
 
 func NewBookUseCase(
 	bookService *services2.BookService,
-	authorService *services2.AuthorService,
 	rentalService *services.RentalService,
 ) *BookUseCase {
-	return &BookUseCase{bookService: bookService, authorService: authorService, rentalService: rentalService}
+	return &BookUseCase{bookService: bookService, rentalService: rentalService}
 }
 
-func (uc *BookUseCase) AddBook(book dao.BookTable) (int, error) {
-	//Проверяем наличие автора в таблице
-	_, err := uc.authorService.GetAuthorById(book.AuthorID)
-	if err != nil {
-		return 0, fmt.Errorf("данного автора id=%d нет в таблице: %v", book.AuthorID, err)
-	}
+func (uc *BookUseCase) AddBook(book entities.BookRequest) (int, error) {
 
 	//Добавляем книгу
 	bookID, err := uc.bookService.AddBook(book)
@@ -46,82 +38,35 @@ func (uc *BookUseCase) AddBook(book dao.BookTable) (int, error) {
 }
 
 func (uc *BookUseCase) AddAuthor(name, surname, patronymic string) (int, error) {
-	fullName, err := validator.Valid(name, surname, patronymic)
-	if err != nil {
-		return 0, fmt.Errorf("ошибка валидации ФИО: %v", err)
-	}
-	id, err := uc.authorService.AddAuthor(fullName)
+	id, err := uc.bookService.AddAuthor(name, surname, patronymic)
 	if err != nil {
 		return 0, fmt.Errorf("ошибка добавления автора: %v", err)
 	}
 	return id, nil
 }
 
-func (uc *BookUseCase) GetAllBookWithAuthor() ([]entities.Book, error) {
-	authors, err := uc.authorService.GetAllAuthors()
+func (uc *BookUseCase) GetAllBookWithAutor() ([]entities.Book, error) {
+	books, err := uc.bookService.GetAllBookWithAutor()
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения всех авторов: %v", err)
 	}
-	books, err := uc.bookService.GetAllBook()
-	if err != nil {
-		return nil, fmt.Errorf("ошибка получения всех книг: %v", err)
-	}
 
-	var bookList []entities.Book
-
-	for _, bookTable := range books {
-		var book entities.Book
-		book.ID = bookTable.ID
-		book.Title = bookTable.Title
-		book.Author = authors[bookTable.AuthorID]
-		bookList = append(bookList, book)
-	}
-	return bookList, nil
+	return books, nil
 }
 
-func (uc *BookUseCase) GetBookWithAuthor(id int) (entities.Book, error) {
-	bookTable, err := uc.bookService.GetBook(id)
+func (uc *BookUseCase) GetBookWithAutor(id int) (entities.Book, error) {
+	book, err := uc.bookService.GetBookWithAutor(id)
 	if err != nil {
 		return entities.Book{}, fmt.Errorf("ошибка получения книги: %v", err)
 	}
-
-	author, err := uc.authorService.GetAuthorById(bookTable.AuthorID)
-	if err != nil {
-		return entities.Book{}, fmt.Errorf("ошибка получения автора: %v", err)
-	}
-
-	book := entities.Book{
-		ID:     bookTable.ID,
-		Title:  bookTable.Title,
-		Author: author,
-	}
-
 	return book, nil
 }
 
 func (uc *BookUseCase) GetAllAuthorWithBooks() ([]entities.Author, error) {
-	authors, err := uc.authorService.GetAllAuthors()
+	authors, err := uc.bookService.GetAllAuthorWithBooks()
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения всех авторов: %v", err)
 	}
-	books, err := uc.bookService.GetAllBook()
-	if err != nil {
-		return nil, fmt.Errorf("ошибка получения всех книг: %v", err)
-	}
 
-	var authorList []entities.Author
-	authorBooks := make(map[int][]dao.BookTable)
-
-	for _, bookTable := range books {
-		authorBooks[bookTable.AuthorID] = append(authorBooks[bookTable.AuthorID], bookTable)
-	}
-
-	for key, value := range authors {
-		var author entities.Author
-		author.ID = key
-		author.Name = value.Name
-		author.Books = authorBooks[key]
-		authorList = append(authorList, author)
-	}
-	return authorList, nil
+	return authors, nil
 }

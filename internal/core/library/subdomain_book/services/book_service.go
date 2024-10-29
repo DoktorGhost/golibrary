@@ -2,19 +2,18 @@ package services
 
 import (
 	"fmt"
+	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"time"
-
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=./mock_book.go -package=${GOPACKAGE}
 type BookRepository interface {
-	CreateBook(book dao.BookTable) (int, error)
-	GetBookByID(id int) (dao.BookTable, error)
-	UpdateBook(book dao.BookTable) error
-	DeleteBook(id int) error
-	GetAllBooks() ([]dao.BookTable, error)
+	AddBook(book entities.BookRequest) (int, error)
+	AddAuthor(name, surname, patronymic string) (int, error)
+	GetAllBookWithAutor() ([]entities.Book, error)
+	GetBookWithAutor(id int) (entities.Book, error)
+	GetAllAuthorWithBooks() ([]entities.Author, error)
 }
 
 type BookService struct {
@@ -25,10 +24,10 @@ func NewBookService(repo BookRepository) *BookService {
 	return &BookService{repo: repo}
 }
 
-func (s *BookService) AddBook(book dao.BookTable) (int, error) {
+func (s *BookService) AddBook(book entities.BookRequest) (int, error) {
 	start := time.Now()
 
-	bookID, err := s.repo.CreateBook(book)
+	bookID, err := s.repo.AddBook(book)
 
 	duration := time.Since(start).Seconds()
 	metrics.TrackDBDuration("AddBook", duration)
@@ -40,62 +39,62 @@ func (s *BookService) AddBook(book dao.BookTable) (int, error) {
 	return bookID, nil
 }
 
-func (s *BookService) GetBook(id int) (dao.BookTable, error) {
+func (s *BookService) AddAuthor(name, surname, patronymic string) (int, error) {
 	start := time.Now()
 
-	book, err := s.repo.GetBookByID(id)
+	authorID, err := s.repo.AddAuthor(name, surname, patronymic)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetBook", duration)
+	metrics.TrackDBDuration("AddAuthor", duration)
 
 	if err != nil {
-		return dao.BookTable{}, fmt.Errorf("ошибка получения книги: %v", err)
+		return 0, fmt.Errorf("ошибка создания автора: %v", err)
 	}
 
-	return book, nil
+	return authorID, nil
 }
 
-func (s *BookService) DeleteBook(id int) error {
+func (s *BookService) GetAllBookWithAutor() ([]entities.Book, error) {
 	start := time.Now()
 
-	err := s.repo.DeleteBook(id)
+	books, err := s.repo.GetAllBookWithAutor()
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("DeleteBook", duration)
-
-	if err != nil {
-		return fmt.Errorf("ошибка удаления книги: %v", err)
-	}
-
-	return nil
-}
-
-func (s *BookService) UpdateBook(book dao.BookTable) error {
-	start := time.Now()
-
-	err := s.repo.UpdateBook(book)
-
-	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("UpdateBook", duration)
-
-	if err != nil {
-		return fmt.Errorf("ошибка обновления книги: %v", err)
-	}
-
-	return nil
-}
-
-func (s *BookService) GetAllBook() ([]dao.BookTable, error) {
-	start := time.Now()
-
-	books, err := s.repo.GetAllBooks()
-
-	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetAllBook", duration)
+	metrics.TrackDBDuration("GetAllBookWithAutor", duration)
 
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения всех книг: %v", err)
 	}
 
 	return books, nil
+}
+
+func (s *BookService) GetBookWithAutor(id int) (entities.Book, error) {
+	start := time.Now()
+
+	book, err := s.repo.GetBookWithAutor(id)
+
+	duration := time.Since(start).Seconds()
+	metrics.TrackDBDuration("GetBookWithAutor", duration)
+
+	if err != nil {
+		return entities.Book{}, fmt.Errorf("ошибка получения книги: %v", err)
+	}
+
+	return book, nil
+}
+
+func (s *BookService) GetAllAuthorWithBooks() ([]entities.Author, error) {
+	start := time.Now()
+
+	authors, err := s.repo.GetAllAuthorWithBooks()
+
+	duration := time.Since(start).Seconds()
+	metrics.TrackDBDuration("GetAllAuthorWithBooks", duration)
+
+	if err != nil {
+		return nil, fmt.Errorf("ошибка получения книги: %v", err)
+	}
+
+	return authors, nil
 }

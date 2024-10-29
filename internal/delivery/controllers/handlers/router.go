@@ -30,7 +30,6 @@ func SetupRoutes(provider *providers.UseCaseProvider) *chi.Mux {
 		r.Get("/authors", handlerGetAllAuthors(provider))
 
 		r.Get("/rentals", handlerGetAllRentals(provider))
-		r.Get("/top/{period}/{limit}", handlerGetTop(provider))
 		r.Post("/rental/add/{user_id}/{book_id}", handlerGiveBook(provider))
 		r.Post("/rental/back/{book_id}", handlerBackBook(provider))
 
@@ -39,7 +38,7 @@ func SetupRoutes(provider *providers.UseCaseProvider) *chi.Mux {
 	})
 
 	r.Post("/login", handlerLogin(provider))
-	r.Post("/user/add", handlerAddUser(provider))
+	r.Post("/register", handlerAddUser(provider))
 
 	//метрики
 	r.Handle("/metrics", promhttp.Handler())

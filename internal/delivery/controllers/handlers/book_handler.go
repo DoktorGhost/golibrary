@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	_ "github.com/DoktorGhost/golibrary/docs"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/repositories/postgres/dao"
 	"github.com/DoktorGhost/golibrary/internal/providers"
 	"io"
 	"net/http"
@@ -99,7 +98,7 @@ func handlerAddBook(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc
 			return
 		}
 
-		id, err := useCaseProvider.BookUseCase.AddBook(dao.BookTable{Title: book.Title, AuthorID: book.AuthorID})
+		id, err := useCaseProvider.BookUseCase.AddBook(entities.BookRequest{Title: book.Title, AuthorID: book.AuthorID})
 		if err != nil {
 			http.Error(w, "Ошибка при добавлении книги: "+err.Error(), http.StatusInternalServerError)
 			log.Error("Ошибка при добавлении книги", err)
@@ -132,7 +131,7 @@ func handlerGetAllBooks(useCaseProvider *providers.UseCaseProvider) http.Handler
 			return
 		}
 
-		books, err := useCaseProvider.BookUseCase.GetAllBookWithAuthor()
+		books, err := useCaseProvider.BookUseCase.GetAllBookWithAutor()
 		if err != nil {
 			http.Error(w, "Ошибка получения книг: "+err.Error(), http.StatusInternalServerError)
 			log.Error("Ошибка получения книг", err)

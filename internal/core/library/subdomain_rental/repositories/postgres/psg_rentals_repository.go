@@ -8,7 +8,7 @@ import (
 )
 
 func (s *RentalRepository) CreateRentals(bookID int) error {
-	query := `INSERT INTO library.rentals (id) VALUES ($1)`
+	query := `INSERT INTO rentals (id) VALUES ($1)`
 	_, err := s.db.Exec(context.Background(), query, bookID)
 	if err != nil {
 		return fmt.Errorf("ошибка добавления записи: %v", err)
@@ -18,7 +18,7 @@ func (s *RentalRepository) CreateRentals(bookID int) error {
 
 func (s *RentalRepository) GetRentalsByID(id int) (int, error) {
 	var rentals_id *int
-	query := `SELECT rentals_id FROM library.rentals WHERE id = $1`
+	query := `SELECT rentals_id FROM rentals WHERE id = $1`
 	err := s.db.QueryRow(context.Background(), query, id).Scan(&rentals_id)
 
 	if err != nil {
@@ -41,10 +41,10 @@ func (s *RentalRepository) UpdateRentals(id, rentals_id int) error {
 
 	// Если rentals_id равен 0, используем NULL в запросе
 	if rentals_id == 0 {
-		query = `UPDATE library.rentals SET rentals_id = NULL WHERE id = $1`
+		query = `UPDATE rentals SET rentals_id = NULL WHERE id = $1`
 		result, err = s.db.Exec(context.Background(), query, id)
 	} else {
-		query = `UPDATE library.rentals SET rentals_id = $1 WHERE id = $2`
+		query = `UPDATE rentals SET rentals_id = $1 WHERE id = $2`
 		result, err = s.db.Exec(context.Background(), query, rentals_id, id)
 	}
 
@@ -53,23 +53,6 @@ func (s *RentalRepository) UpdateRentals(id, rentals_id int) error {
 	}
 
 	// Проверяем, была ли обновлена хотя бы одна запись
-	rowsAffected := result.RowsAffected()
-
-	if rowsAffected == 0 {
-		return fmt.Errorf("запись с ID %d не найдена", id)
-	}
-
-	return nil
-}
-
-func (s *RentalRepository) DeleteRentals(id int) error {
-	query := `DELETE FROM library.rentals WHERE id=$1`
-	result, err := s.db.Exec(context.Background(), query, id)
-	if err != nil {
-		return fmt.Errorf("ошибка удаления записи: %v", err)
-	}
-
-	// Проверяем, была ли удалена хотя бы одна запись
 	rowsAffected := result.RowsAffected()
 
 	if rowsAffected == 0 {

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/entities"
 	entities2 "github.com/DoktorGhost/golibrary/internal/core/user/entities"
 	"github.com/DoktorGhost/golibrary/internal/providers"
 	"github.com/go-chi/chi"
@@ -39,7 +38,7 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc
 		defer r.Body.Close()
 
 		// Декодирование JSON из тела запроса
-		var user entities.RegisterData
+		var user entities2.RegisterData
 		if err := json.Unmarshal(body, &user); err != nil {
 			http.Error(w, "Ошибка декодирования JSON: "+err.Error(), http.StatusBadRequest)
 			log.Error("Ошибка декодирования JSON", err)
@@ -169,7 +168,7 @@ func handlerLogin(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc {
 
 		// Если токен не найден, аутентификация пользователя
 		if token == "" {
-			token, err = useCaseProvider.AuthUseCase.Login(loginData.Username, loginData.Password)
+			token, err = useCaseProvider.AuthUseCase.Login(loginData)
 			if err != nil {
 				http.Error(w, "Ошибка аутентификации", http.StatusBadRequest)
 				log.Error("Ошибка аутентификации", err)

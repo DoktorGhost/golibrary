@@ -3,9 +3,7 @@ package usecases
 import (
 	"errors"
 	"fmt"
-	services3 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_book/services"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/entities"
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres/dao"
 	"time"
 
 	services2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
@@ -16,15 +14,13 @@ type LibraryUseCase struct {
 	rentalService *services2.RentalService
 	userService   *services.UserService
 	bookService   *BookUseCase
-	authorService *services3.AuthorService
 }
 
 func NewLibraryUseCase(
 	rentalService *services2.RentalService,
 	userService *services.UserService,
-	bookService *BookUseCase,
-	authorService *services3.AuthorService) *LibraryUseCase {
-	return &LibraryUseCase{rentalService, userService, bookService, authorService}
+	bookService *BookUseCase) *LibraryUseCase {
+	return &LibraryUseCase{rentalService, userService, bookService}
 }
 
 // GiveBook выдать книгу
@@ -95,15 +91,15 @@ func (uc *LibraryUseCase) GetUserRentals() ([]entities.UserWithRentedBooks, erro
 	for userID, booksID := range rentalsID {
 		var rental entities.UserWithRentedBooks
 
-		user, err := uc.userService.GetUserById(userID)
+		username, err := uc.userService.GetUserById(userID)
 		if err != nil {
 			return nil, fmt.Errorf("ошибка получения автора: %v", err)
 		}
 		rental.ID = userID
-		rental.FullName = user.FullName
+		rental.Username = username
 
 		for _, bookID := range booksID {
-			book, err := uc.bookService.GetBookWithAuthor(bookID)
+			book, err := uc.bookService.GetBookWithAutor(bookID)
 			if err != nil {
 				return nil, err
 			}
@@ -113,12 +109,4 @@ func (uc *LibraryUseCase) GetUserRentals() ([]entities.UserWithRentedBooks, erro
 	}
 
 	return result, nil
-}
-
-func (uc *LibraryUseCase) GetTopAuthors(period, limit int) ([]dao.TopAuthor, error) {
-	authors, err := uc.rentalService.GetTopAuthorsByPeriod(period, limit)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка получения топ авторов за период %d: %v", period, err)
-	}
-	return authors, nil
 }

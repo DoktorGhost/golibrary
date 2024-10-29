@@ -14,6 +14,7 @@ var (
 type config struct {
 	LibraryPostgres DBConfig     `mapstructure:"LibraryPostgres"`
 	Secrets         SecretConfig `mapstructure:"Secrets"`
+	GrpcConfig      GrpcConfig   `mapstructure:"GrpcConfig"`
 }
 
 type DBConfig struct {
@@ -28,10 +29,16 @@ type SecretConfig struct {
 	JWTSecret string `mapstructure:"SECRET_KEY_JWT"`
 }
 
+type GrpcConfig struct {
+	UserHost string `mapstructure:"USER_HOST"`
+	UserPort string `mapstructure:"USER_PORT"`
+	BookHost string `mapstructure:"BOOK_HOST"`
+	BookPort string `mapstructure:"BOOK_PORT"`
+}
+
 func LoadConfig() config {
 	once.Do(func() {
 		// Декодируем значения в структуру Config
-
 		viper.BindEnv("LibraryPostgres.DB_HOST", "DB_HOST")
 		viper.BindEnv("LibraryPostgres.DB_PORT", "DB_PORT")
 		viper.BindEnv("LibraryPostgres.DB_NAME", "DB_NAME")
@@ -39,6 +46,12 @@ func LoadConfig() config {
 		viper.BindEnv("LibraryPostgres.DB_PASS", "DB_PASS")
 
 		viper.BindEnv("Secrets.SECRET_KEY_JWT", "SECRET_KEY_JWT")
+
+		viper.BindEnv("GrpcConfig.USER_HOST", "USER_HOST")
+		viper.BindEnv("GrpcConfig.USER_PORT", "USER_PORT")
+
+		viper.BindEnv("GrpcConfig.BOOK_HOST", "BOOK_HOST")
+		viper.BindEnv("GrpcConfig.BOOK_PORT", "BOOK_PORT")
 
 		if err := viper.Unmarshal(&Config); err != nil {
 			panic(fmt.Errorf("ошибка декодирования конфигурации: %w", err))
