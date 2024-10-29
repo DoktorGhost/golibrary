@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/entities"
-	"github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/repositories/postgres/dao"
 	"time"
 
 	services2 "github.com/DoktorGhost/golibrary/internal/core/library/subdomain_rental/services"
@@ -110,12 +109,4 @@ func (uc *LibraryUseCase) GetUserRentals() ([]entities.UserWithRentedBooks, erro
 	}
 
 	return result, nil
-}
-
-func (uc *LibraryUseCase) GetTopAuthors(period, limit int) ([]dao.TopAuthor, error) {
-	authors, err := uc.rentalService.GetTopAuthorsByPeriod(period, limit)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка получения топ авторов за период %d: %v", period, err)
-	}
-	return authors, nil
 }
