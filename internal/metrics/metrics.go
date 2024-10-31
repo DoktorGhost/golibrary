@@ -35,6 +35,25 @@ var (
 		},
 		[]string{"method"},
 	)
+
+	// Метрики для времени выполнения запросов к внешним API
+	ExternalAPIDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "external_api_duration_seconds",
+			Help:    "Duration of external API requests in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"api_name", "endpoint"},
+	)
+
+	// Метрика для количества запросов к внешним API
+	ExternalAPICount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "external_api_request_count",
+			Help: "Number of requests to external APIs",
+		},
+		[]string{"api_name", "endpoint"},
+	)
 )
 
 func Init() {
@@ -42,6 +61,14 @@ func Init() {
 	prometheus.MustRegister(RequestDuration)
 	prometheus.MustRegister(RequestCount)
 	prometheus.MustRegister(DBDuration)
+	prometheus.MustRegister(ExternalAPIDuration)
+	prometheus.MustRegister(ExternalAPICount)
+}
+
+// TrackExternalAPIDuration - функция для отслеживания времени выполнения запроса к внешним API
+func TrackExternalAPIDuration(apiName, endpoint string, duration float64) {
+	ExternalAPIDuration.WithLabelValues(apiName, endpoint).Observe(duration)
+	ExternalAPICount.WithLabelValues(apiName, endpoint).Inc()
 }
 
 // TrackDBDuration - функция для отслеживания времени выполнения запроса к БД

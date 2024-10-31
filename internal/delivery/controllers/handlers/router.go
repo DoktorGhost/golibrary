@@ -24,19 +24,20 @@ func SetupRoutes(provider *providers.UseCaseProvider) *chi.Mux {
 		r.Use(jwtauth.Verifier(provider.AuthUseCase.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 
+		//запросы к внешним API
 		r.Post("/author/add", handlerAddAuthor(provider))
 		r.Post("/books/add", handlerAddBook(provider))
 		r.Get("/books", handlerGetAllBooks(provider))
 		r.Get("/authors", handlerGetAllAuthors(provider))
+		r.Get("/user/{id}", handlerGetUser(provider))
 
+		//запросы к БД
 		r.Get("/rentals", handlerGetAllRentals(provider))
 		r.Post("/rental/add/{user_id}/{book_id}", handlerGiveBook(provider))
 		r.Post("/rental/back/{book_id}", handlerBackBook(provider))
-
-		r.Get("/user/{id}", handlerGetUser(provider))
-
 	})
 
+	//запросы к внешним API
 	r.Post("/login", handlerLogin(provider))
 	r.Post("/register", handlerAddUser(provider))
 
@@ -44,7 +45,7 @@ func SetupRoutes(provider *providers.UseCaseProvider) *chi.Mux {
 	r.Handle("/metrics", promhttp.Handler())
 	r.Get("/debug/pprof/", PprofHandler)
 
-	// Настройка Swagger
+	// Swagger
 	r.Get("/swagger*", httpSwagger.WrapHandler)
 
 	return r
