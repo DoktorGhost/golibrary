@@ -3,12 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	entities2 "github.com/DoktorGhost/golibrary/internal/core/user/entities"
+	"github.com/DoktorGhost/golibrary/internal/metrics"
 	"github.com/DoktorGhost/golibrary/internal/providers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // @Summary Добавить пользователя
@@ -45,14 +47,18 @@ func handlerAddUser(useCaseProvider *providers.UseCaseProvider) http.HandlerFunc
 			return
 		}
 
-		// Вызов метода добавления автора из юзкейса
+		start := time.Now()
 
+		// Вызов метода добавления автора из юзкейса
 		id, err := useCaseProvider.UserUseCase.AddUser(user)
 		if err != nil {
 			http.Error(w, "Ошибка при добавлении пользователя: "+err.Error(), http.StatusInternalServerError)
 			log.Error("Ошибка при добавлении пользователя", err)
 			return
 		}
+
+		duration := time.Since(start).Seconds()
+		metrics.TrackExternalAPIDuration("ClientsService", "AddUser", duration)
 
 		// Успешный ответ
 		w.WriteHeader(http.StatusCreated)

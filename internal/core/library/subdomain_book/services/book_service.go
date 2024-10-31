@@ -30,7 +30,7 @@ func (s *BookService) AddBook(book entities.BookRequest) (int, error) {
 	bookID, err := s.repo.AddBook(book)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("AddBook", duration)
+	metrics.TrackExternalAPIDuration("BooksService", "AddBook", duration)
 
 	if err != nil {
 		return 0, fmt.Errorf("ошибка создания книги: %v", err)
@@ -45,7 +45,7 @@ func (s *BookService) AddAuthor(name, surname, patronymic string) (int, error) {
 	authorID, err := s.repo.AddAuthor(name, surname, patronymic)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("AddAuthor", duration)
+	metrics.TrackExternalAPIDuration("BooksService", "AddAuthor", duration)
 
 	if err != nil {
 		return 0, fmt.Errorf("ошибка создания автора: %v", err)
@@ -60,7 +60,7 @@ func (s *BookService) GetAllBookWithAutor() ([]entities.Book, error) {
 	books, err := s.repo.GetAllBookWithAutor()
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetAllBookWithAutor", duration)
+	metrics.TrackExternalAPIDuration("BooksService", "GetAllBookWithAutor", duration)
 
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения всех книг: %v", err)
@@ -75,7 +75,7 @@ func (s *BookService) GetBookWithAutor(id int) (entities.Book, error) {
 	book, err := s.repo.GetBookWithAutor(id)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetBookWithAutor", duration)
+	metrics.TrackExternalAPIDuration("BooksService", "GetBookWithAutor", duration)
 
 	if err != nil {
 		return entities.Book{}, fmt.Errorf("ошибка получения книги: %v", err)
@@ -90,7 +90,7 @@ func (s *BookService) GetAllAuthorWithBooks() ([]entities.Author, error) {
 	authors, err := s.repo.GetAllAuthorWithBooks()
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetAllAuthorWithBooks", duration)
+	metrics.TrackExternalAPIDuration("BooksService", "GetAllAuthorWithBooks", duration)
 
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения книги: %v", err)

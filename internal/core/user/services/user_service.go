@@ -31,7 +31,7 @@ func (s *UserService) Register(userData entities.RegisterData) (string, error) {
 	userID, err := s.repo.Register(userData)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("CreateUser", duration)
+	metrics.TrackExternalAPIDuration("ClientsService", "Register", duration)
 
 	if err != nil {
 		return "", fmt.Errorf("ошибка создания пользователя: %v", err)
@@ -45,7 +45,7 @@ func (s *UserService) Login(userData entities.Login) (entities.UserTable, error)
 	user, err := s.repo.Login(userData)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetUserById", duration)
+	metrics.TrackExternalAPIDuration("ClientsService", "Login", duration)
 
 	if err != nil {
 		return entities.UserTable{}, fmt.Errorf("ошибка получения пользователя: %v", err)
@@ -59,7 +59,7 @@ func (s *UserService) GetUserById(userID int) (string, error) {
 	username, err := s.repo.GetUserById(userID)
 
 	duration := time.Since(start).Seconds()
-	metrics.TrackDBDuration("GetUserById", duration)
+	metrics.TrackExternalAPIDuration("ClientsService", "GetUserById", duration)
 
 	if err != nil {
 		return "", fmt.Errorf("ошибка получения пользователя: %v", err)
